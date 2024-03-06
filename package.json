@@ -28,11 +28,13 @@
     "buffer": "6.0.3",
     "daisyui": "3.9.3",
     "encoding": "0.1.13",
+    "envalid": "^8.0.0",
     "jotai": "2.5.1",
-    "next": "13.4.4",
+    "next": "^14.1.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hot-toast": "2.4.1",
+    "react-markdown": "^9.0.1",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
