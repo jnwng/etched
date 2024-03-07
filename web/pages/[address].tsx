@@ -1,8 +1,11 @@
 import ReactMarkdown from 'react-markdown';
 import env from '../components/env';
 
-// TODO(jon): Add some caching
-export async function getServerSideProps({ params: { address } }: { params: { address: string } }) {
+export const getStaticPaths = () => {
+  return { paths: [], fallback: "blocking" };
+};
+
+export async function getStaticProps({ params: { address } }: { params: { address: string } }) {
   // TODO(jon): Switch this endpoint based on environment / subdomain
   const res = await fetch(env.DEVNET_HELIUS_ENDPOINT, {
     method: 'POST',
@@ -28,7 +31,12 @@ export async function getServerSideProps({ params: { address } }: { params: { ad
 }
 
 function SolanaMarkdown({ contentMarkdown }: { contentMarkdown: string }) {
-  return <ReactMarkdown>{contentMarkdown}</ReactMarkdown>;
+  return (
+    <div className="flex justify-center">
+      <ReactMarkdown className="py-6 prose lg:prose-xl">{contentMarkdown}</ReactMarkdown>
+    </div>
+  );
 }
+
 
 export default SolanaMarkdown;
