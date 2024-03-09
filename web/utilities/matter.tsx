@@ -1,29 +1,10 @@
-/**
- * @typedef {import('unist').Node} Node
- * @typedef {import('vfile').VFile} VFile
- */
-
 import { matter } from 'vfile-matter'
+import type { VFile } from 'vfile'
+import type { Node } from 'unist'
 
-/**
- * Parse YAML frontmatter and expose it at `file.data.matter`.
- *
- * @returns
- *   Transform.
- */
+
 export default function remarkMatterPlugin() {
-  /**
-   * Transform.
-   *
-   * @param {Node} tree
-   *   Tree.
-   * @param {VFile} file
-   *   File.
-   * @returns {undefined}
-   *   Nothing.
-   */
-  return function (tree, file) {
-    console.info({ tree, file })
-    matter(file)
+  return function (tree: Node, file: VFile) {
+    matter(file); // After this call, file is assumed to be mutated to fit EnhancedVFile structure
   }
 }
