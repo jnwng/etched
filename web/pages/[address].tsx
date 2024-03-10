@@ -47,21 +47,6 @@ export async function getStaticProps({ params: { address } }: { params: { addres
   const contentRes = await fetch(data.result.content.json_uri);
   const { description, image } = await contentRes.json();
 
-  //   const author = "ETchEDh1Uk9B8mGaDkS7sy4zUkkqUVXcbpBn5rW5EiZE";
-
-  //   const description = `
-  // ---
-  // title: 'Dynamic Solana NFT Details'
-  // description: 'Explore the unique attributes and story behind this Solana NFT.'
-  // ---
-
-  // # Welcome to the NFT World
-
-  // This NFT, identified by the address ${address}, holds a unique place in the Solana ecosystem. Its attributes, history, and current ownership are a testament to the vibrant community and technological innovation that Solana supports.
-
-  // Explore below for more details about this NFT's journey and significance.
-  // `;
-
   // Directly pass markdown content to the component
   return {
     props: {
@@ -74,6 +59,7 @@ export async function getStaticProps({ params: { address } }: { params: { addres
         // createdAt: undefined,
       }
     },
+    revalidate: 60
   };
 }
 
@@ -142,20 +128,28 @@ function SolanaMarkdown({ nft, author }: SolanaMarkdownProps) {
       </Head>
       <div className="flex justify-center">
         <div className="py-6 prose lg:prose-xl">
+          <ReactMarkdown>{markdownBody}</ReactMarkdown>
 
-          <div className="flex gap-2">
-            <button className="badge badge-outline">
-              Author: {author}
-            </button>
-            {/* <button className="badge badge-outline">
-              Published At: {nft.createdAt.toString()}
-            </button> */}
-            <button className="badge badge-outline">
-              Permaweb Address: {nft.address}
-            </button>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="stats shadow stats-vertical w-full">
+              <div className="stat">
+                <div className="stat-desc">Author:{" "}
+                  <a href={`https://solana.fm/address/${author}/transactions`} target="_blank" rel="noopener noreferrer" className="link link-primary">
+                    {author}
+                  </a>
+                </div>
+              </div>
+
+              <div className="stat">
+                <div className="stat-desc">Mint:{" "}
+                  <a href={`https://solana.fm/address/${nft.address}/transactions`} target="_blank" rel="noopener noreferrer" className="link link-primary">
+                    {nft.address}
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <ReactMarkdown>{markdownBody}</ReactMarkdown>
         </div>
       </div>
     </>
