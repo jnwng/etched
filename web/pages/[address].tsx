@@ -4,7 +4,6 @@ import remarkFrontmatter from 'remark-frontmatter';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkStringify from 'remark-stringify';
-import yaml from 'yaml';
 import env from '../components/env';
 import Head from 'next/head';
 import remarkMatterPlugin from '@/utilities/matter';
