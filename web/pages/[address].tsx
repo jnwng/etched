@@ -133,18 +133,26 @@ function SolanaMarkdown({ nft, author }: SolanaMarkdownProps) {
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="stats shadow stats-vertical w-full">
               <div className="stat">
-                <div className="stat-desc">Author:{" "}
-                  <a href={`https://solana.fm/address/${author}/transactions`} target="_blank" rel="noopener noreferrer" className="link link-primary">
-                    {author}
-                  </a>
+                <div className="stat-desc">Author</div>
+                <div className="stat-title text-sm">
+                  <div className="flex items-center space-x-2">
+                    <span>{author}</span>
+                    <a href={`https://solana.fm/address/${author}/transactions`} target="_blank" rel="noopener noreferrer">
+                      <svg className="h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />  <polyline points="15 3 21 3 21 9" />  <line x1="10" y1="14" x2="21" y2="3" /></svg>
+                    </a>
+                  </div>
                 </div>
               </div>
 
               <div className="stat">
-                <div className="stat-desc">Mint:{" "}
-                  <a href={`https://solana.fm/address/${nft.address}/transactions`} target="_blank" rel="noopener noreferrer" className="link link-primary">
-                    {nft.address}
-                  </a>
+                <div className="stat-desc">Mint</div>
+                <div className="stat-title text-sm">
+                  <div className="flex items-center space-x-2">
+                    <span>{nft.address}</span>
+                    <a href={`https://solana.fm/address/${nft.address}/transactions`} target="_blank" rel="noopener noreferrer">
+                      <svg className="h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />  <polyline points="15 3 21 3 21 9" />  <line x1="10" y1="14" x2="21" y2="3" /></svg>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
