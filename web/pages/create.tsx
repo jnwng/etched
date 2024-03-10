@@ -5,7 +5,7 @@ const CreatePage = () => {
   const [markdown, setMarkdown] = useState('');
 
   // Function to handle Markdown text change
-  const handleMarkdownChange = (event) => {
+  const handleMarkdownChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMarkdown(event.target.value);
   };
 
