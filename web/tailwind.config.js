@@ -11,6 +11,9 @@ module.exports = {
     ...createGlobPatternsForDependencies(__dirname),
   ],
   theme: {
+    container: {
+      padding: '2rem',
+    },
     extend: {
       fontFamily: {
         sans: ['Lato', 'sans-serif'],
