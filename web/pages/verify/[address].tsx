@@ -11,11 +11,11 @@ const VerifyAddress = () => {
 
   useEffect(() => {
     if (address) {
-      fetchVerificationStatus(address);
+      fetchVerificationStatus(address as string);
     }
   }, [address]);
 
-  const fetchVerificationStatus = async (address) => {
+  const fetchVerificationStatus = async (address: string) => {
     try {
       const response = await axios.get(`https://api.helius.xyz/verify/${address}`);
       const { status, reasons } = response.data;
