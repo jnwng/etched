@@ -5,7 +5,17 @@ import remarkStringify from 'remark-stringify';
 import remarkFrontmatter from 'remark-frontmatter';
 import yaml from 'yaml'
 import type { Literal, Parent, } from 'unist';
-import { DEVNET_HELIUS_ENDPOINT } from '../env'
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+// import { Connection, Transaction } from '@solana/web3.js';
+// import {
+//   getAssetWithProof,
+//   verifyCreator,
+// } from '@metaplex-foundation/mpl-bubblegum'
+// import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
+// import { publicKey, signerIdentity } from '@metaplex-foundation/umi';
+// import { createSignerFromWalletAdapter } from '@metaplex-foundation/umi-signer-wallet-adapters';
+import { useRouter } from 'next/router';
 
 type StepOneProps = {
   title: string;
@@ -56,13 +66,17 @@ type StepTwoProps = {
   markdown: string;
 };
 
-const StepTwo: React.FC<StepTwoProps> = ({ title, summary, markdown }) => {
+const StepTwo: React.FC<StepTwoProps> = ({ title, summary, markdown, }) => {
   const [processedMarkdown, setProcessedMarkdown] = useState('');
   const [mergedFrontMatter, setMergedFrontMatter] = useState<{
     summary?: string;
     image?: string;
-    // tags?: string[];
   }>({});
+  const [isMinting, setIsMinting] = useState(false); // State to manage loading state
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // State to store error message
+
+  const wallet = useWallet();
+  const router = useRouter();
 
   useEffect(() => {
     async function processMarkdownWithFrontmatter(markdown: string, summary: string) {
@@ -93,9 +107,20 @@ const StepTwo: React.FC<StepTwoProps> = ({ title, summary, markdown }) => {
   // Use `processedMarkdown` in your component as needed
   console.info({ processedMarkdown });
 
-  const mintNFT = async (owner: string) => {
+  const mintNFT = async () => {
+    if (!wallet.connected || !wallet.publicKey) {
+      console.error("Wallet is not connected");
+      setErrorMessage("Wallet is not connected");
+      return;
+    }
+
+    setIsMinting(true); // Start loading
+    setErrorMessage(null); // Reset error message
+
+    const owner = wallet.publicKey.toString();
+
     try {
-      const response = await fetch(DEVNET_HELIUS_ENDPOINT, {
+      const response = await fetch(process.env.NEXT_PUBLIC_DEVNET_HELIUS_ENDPOINT!, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,40 +138,44 @@ const StepTwo: React.FC<StepTwoProps> = ({ title, summary, markdown }) => {
             attributes: [],
             imageUrl: mergedFrontMatter.image ??
               'https://nftstorage.link/ipfs/bafybeigbhoe7436f2ieudxxw6a6ktg37xcrgf4b7iqol4uefnkaa42pdem',
+            // Compressed assets don't have a deterministic address, so we can only link to the archive
+            // Can be solved with another key
             externalUrl: `https://www.etched.id/${owner}`,
             sellerFeeBasisPoints: 0,
             creators: [{
               address: owner,
-              share: 0,
-              verified: true
-            }]
+              share: 100,
+            }],
           },
         }),
       });
       const { result } = await response.json();
       console.log('Minted asset: ', result.assetId);
-      // Handle success (e.g., update state or show a message)
+      setIsMinting(false); // Stop loading
+      router.push(`/${result.assetId}`); // Redirect to the asset page using the assetId
     } catch (error) {
       console.error('Error:', error);
-      // Handle error
+      setIsMinting(false); // Stop loading
+      setErrorMessage((error as Error).message || 'An error occurred'); // Set error message
     }
   };
-
 
   return (
     <div>
       <div className="p-4">
         <h2>Preparing NFT</h2>
-        <ul>
-          <li>1. Offchain JSON being uploaded to Arweave</li>
-          <li>2. NFT being minted</li>
-        </ul>
-        <button
-          className="btn btn-primary mt-4"
-          onClick={mintNFT}
-        >
-          Mint NFT
-        </button>
+        {errorMessage && <div className="text-red-500">{errorMessage}</div>} {/* Display error message */}
+        {wallet.connected ? (
+          <button
+            className="btn btn-primary mt-4"
+            onClick={mintNFT}
+            disabled={isMinting} // Disable button while minting
+          >
+            {isMinting ? 'Minting...' : 'Mint NFT'}
+          </button>
+        ) : (
+          <WalletMultiButton className="btn btn-primary mt-4" />
+        )}
       </div>
     </div>
   );
@@ -165,20 +194,19 @@ const WizardPage = ({ markdown }: { markdown: string }) => {
     setCurrentStep((prevStep) => (prevStep > 1 ? prevStep - 1 : prevStep));
   };
 
+
   return (
     <div className="p-4">
       {/* Step indicators */}
       <div className="steps w-full">
         <div className={`step ${currentStep >= 1 ? 'step-primary' : ''}`}>Edit Metadata</div>
         <div className={`step ${currentStep >= 2 ? 'step-primary' : ''}`}>Mint NFT</div>
-        <div className={`step ${currentStep >= 3 ? 'step-primary' : ''}`}>Verify NFT</div>
       </div>
 
       {/* Step content */}
       <div className="p-4">
         {currentStep === 1 && <StepOne title={title} setTitle={setTitle} summary={summary} setSummary={setSummary} />}
         {currentStep === 2 && <StepTwo title={title} summary={summary} markdown={markdown} />}
-        {currentStep === 3 && <div>Content for Step 3</div>}
       </div>
 
       {/* Navigation buttons */}
