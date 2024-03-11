@@ -1,17 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import type { RouteType } from '@/pages/[address]';
+import { RouteType } from '@/pages/[address]';
 import { DASAsset, isVerifiedNft } from '@/utilities/is-verified-nft';
+import { getDomainKeySync, NameRegistryState } from '@bonfida/spl-name-service';
+import { Connection, PublicKey } from '@solana/web3.js';
 
 type BlogListProps = {
   address: string;
   routeType: RouteType;
 };
 
-const BlogList = ({ address }: BlogListProps) => {
+const BlogList = ({ address, routeType }: BlogListProps) => {
   const [blogs, setBlogs] = useState<Array<DASAsset & { verified: boolean }>>([]);
 
   useEffect(() => {
     const getAssetsByCreator = async () => {
+      let author = address;
+      if (routeType === RouteType.Shortname) {
+        const connection = new Connection(process.env.NEXT_PUBLIC_MAINNET_HELIUS_ENDPOINT!)
+        const registryKey = getDomainKeySync(address);
+        const { registry, nftOwner } = await NameRegistryState.retrieve(
+          connection,
+          registryKey.pubkey,
+        );
+        console.log({ nftOwner, registry })
+        author = registry.owner.toString();
+        console.info("Resolving", { author })
+      }
+
       const response = await fetch(process.env.NEXT_PUBLIC_DEVNET_HELIUS_ENDPOINT!, {
         method: 'POST',
         headers: {
@@ -22,7 +37,7 @@ const BlogList = ({ address }: BlogListProps) => {
           id: 'etched-archive',
           method: 'getAssetsByCreator',
           params: {
-            creatorAddress: address,
+            creatorAddress: author,
             onlyVerified: true,
             page: 1, // Starts at 1
             limit: 1000
@@ -33,7 +48,7 @@ const BlogList = ({ address }: BlogListProps) => {
       console.log("Assets by Creator: ", result.items);
 
       const verifiedBlogs = (result.items as DASAsset[]).filter(item => {
-        return isVerifiedNft(item, address);
+        return isVerifiedNft(item, author);
       }).map(asset => ({
         ...asset,
         verified: true
@@ -44,7 +59,7 @@ const BlogList = ({ address }: BlogListProps) => {
       getAssetsByCreator();
     }
 
-  }, [address]);
+  }, [address, routeType]);
 
   return (
     <div className="p-4">
