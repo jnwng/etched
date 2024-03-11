@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import Archive from '../components/archive';
 import Asset from '../components/asset';
 import env from '@/components/env';
+import { isVerifiedNft } from '@/utilities/is-verified-nft';
 
 export enum RouteType {
   Shortname = "SHORTNAME",
@@ -39,8 +40,7 @@ export async function getStaticProps({ params: { address } }: { params: { addres
   }
 
   // TODO(jon): Figure out the author's shortname
-  const { result: { ownership: { owner: author }, content: { metadata: { name } } } } = data;
-
+  const { result: { ownership: { owner: author }, content: { metadata: { name } }, compression: { compressed } } } = data;
 
   const contentRes = await fetch(data.result.content.json_uri);
   const { description, image } = await contentRes.json();
@@ -56,6 +56,8 @@ export async function getStaticProps({ params: { address } }: { params: { addres
         imageUri: image,
         content: description,
         // createdAt: undefined,
+        isVerified: isVerifiedNft(data.result, author),
+        isCompressed: compressed,
       }
     },
     revalidate: 60
@@ -69,6 +71,7 @@ type SolanaMarkdownProps = {
     imageUri: string;
     // createdAt: Date;
     content: string;
+    isVerified: boolean;
   };
   author: string;
   routeType: RouteType;
@@ -80,7 +83,7 @@ const AddressPage = ({ nft, author, routeType }: SolanaMarkdownProps) => {
 
 
   if (routeType === RouteType.Address || routeType === RouteType.Shortname) {
-    return <Archive address={address} routeType={routeType} />
+    return <Archive address={address as string} routeType={routeType} />
   }
 
   return (

@@ -1,23 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import type { RouteType } from '@/pages/[address]';
+import { DASAsset, isVerifiedNft } from '@/utilities/is-verified-nft';
 
 type BlogListProps = {
   address: string;
   routeType: RouteType;
 };
-
-type DASAsset = {
-  id: string;
-  ownership: {
-    owner: string,
-  },
-  creators: { address: string, verified: boolean }[]
-  content: {
-    metadata: {
-      name: string
-    }
-  }
-}
 
 const BlogList = ({ address }: BlogListProps) => {
   const [blogs, setBlogs] = useState<Array<DASAsset & { verified: boolean }>>([]);
@@ -45,9 +33,7 @@ const BlogList = ({ address }: BlogListProps) => {
       console.log("Assets by Creator: ", result.items);
 
       const verifiedBlogs = (result.items as DASAsset[]).filter(item => {
-        const isVerified = (item.ownership.owner === address) && item.creators.some(creator => creator.address === address && creator.verified)
-        console.info({ isVerified })
-        return isVerified
+        return isVerifiedNft(item, address);
       }).map(asset => ({
         ...asset,
         verified: true

@@ -8,6 +8,8 @@ import env from '../components/env';
 import Head from 'next/head';
 import remarkMatterPlugin from '@/utilities/matter';
 import type { Parent } from 'unist'
+import { useWallet } from '@solana/wallet-adapter-react';
+import VerifyWizard from './verify-wizard'; // Adjust the import path as necessary
 
 // Order of operations
 // NFT
@@ -20,8 +22,6 @@ import type { Parent } from 'unist'
 // - Description (Content)
 // - 
 
-
-
 type SolanaMarkdownProps = {
   nft: {
     address: string;
@@ -29,6 +29,8 @@ type SolanaMarkdownProps = {
     imageUri: string;
     // createdAt: Date;
     content: string;
+    isVerified: boolean;
+    isCompressed: boolean;
   };
   author: string;
 };
@@ -72,6 +74,8 @@ const Stats = ({ author, mint }: { author: string, mint: string }) => (
 function Asset({ nft, author }: SolanaMarkdownProps) {
   const [frontMatter, setMarkdownFrontMatter] = useState<MarkdownFrontMatter>();
   const [markdownBody, setMarkdownBody] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { publicKey } = useWallet();
 
   useEffect(() => {
     const processor = unified()
@@ -85,12 +89,19 @@ function Asset({ nft, author }: SolanaMarkdownProps) {
 
     processor.process(nft.content.trim()).then((file) => {
       setMarkdownFrontMatter(file.data.matter as MarkdownFrontMatter);
-      setMarkdownBody(String(file));
+      // If not verified, only take the first 140 characters of the markdown content
+      const content = nft.isVerified ? String(file) : String(file).slice(0, 140);
+      setMarkdownBody(content);
     });
   }, [nft]);
 
   const title = frontMatter?.title ?? nft.name ?? "Untitled Piece";
   const description = frontMatter?.description ?? nft.content.slice(0, 140);
+
+  const handleVerifyClick = () => {
+    setIsModalOpen(true);
+  };
+
   return (
     <>
       <Head>
@@ -117,9 +128,32 @@ function Asset({ nft, author }: SolanaMarkdownProps) {
       </Head>
       <div className="flex justify-center">
         <div className="py-6 px-4">
-          <ReactMarkdown className="prose lg:prose-xl">{markdownBody}</ReactMarkdown>
+          {/* Warning banner if not verified */}
+          {!nft.isVerified && author === publicKey?.toString() ? (
+            <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4" role="alert">
+              <p className="font-bold">Information</p>
+              <p>This is your creation and it is not verified yet.</p>
+              <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={handleVerifyClick}>Verify Now</button>
+            </div>
+          ) : !nft.isVerified ? (
+            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+              <p className="font-bold">Notice</p>
+              <p>If you believe this content is yours, please verify it to ensure its safety.</p>
+              <button onClick={handleVerifyClick} className="mt-2 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">Verify Now</button>
+            </div>
+          ) : null}
+          <ReactMarkdown className="py-6 prose lg:prose-xl">{markdownBody}</ReactMarkdown>
           <div className='py-6'>
             <Stats author={author} mint={nft.address} />
+          </div>
+        </div>
+      </div>
+      {/* DaisyUI Modal */}
+      <div className={`modal ${isModalOpen ? 'modal-open' : ''}`}>
+        <div className="modal-box">
+          <VerifyWizard address={nft.address} isCompressed={nft.isCompressed} />
+          <div className="modal-action">
+            <button onClick={() => setIsModalOpen(false)} className="btn">Close</button>
           </div>
         </div>
       </div>
