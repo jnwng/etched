@@ -1,3 +1,7 @@
+---
+summary: Here's our summary
+---
+
 # Hello, World!
 
 This is Etched, an opinionated lens on the content you own, create and share. You write and export as a Markdown file, attach it to an NFT on the Solana blockchain, and Etched will provide you a clean, shareable, deeply integrated view on your own content that works across every surface you might want. Your writing is forever yours and its provenance is cryptographically signed with your public key. If you don't like how Etched displays your content, you'll be able to run and fully-host it yourself, too.
