@@ -2,21 +2,13 @@
 
 import dynamic from 'next/dynamic';
 
-import { WalletError } from '@solana/wallet-adapter-base';
+import { WalletAdapterNetwork, WalletError } from '@solana/wallet-adapter-base';
 import {
-  AnchorWallet,
   ConnectionProvider,
-  useConnection,
-  useWallet,
   WalletProvider,
 } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
 import { ReactNode, useCallback, useMemo } from 'react';
-import {
-  toWalletAdapterNetwork,
-  useCluster,
-} from '../cluster/cluster-data-access';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -27,13 +19,10 @@ export const WalletButton = dynamic(
 );
 
 export function SolanaProvider({ children }: { children: ReactNode }) {
-  const { cluster } = useCluster();
-  const endpoint = useMemo(() => cluster.endpoint, [cluster]);
+  const cluster = WalletAdapterNetwork.Devnet;
+  const endpoint = useMemo(() => process.env.NEXT_PUBLIC_DEVNET_HELIUS_ENDPOINT!, [cluster]);
   const wallets = useMemo(
     () => [
-      new SolflareWalletAdapter({
-        network: toWalletAdapterNetwork(cluster.network),
-      }),
     ],
     [cluster]
   );

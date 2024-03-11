@@ -4,7 +4,6 @@ import remarkFrontmatter from 'remark-frontmatter';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkStringify from 'remark-stringify';
-import yaml from 'yaml';
 import env from '../components/env';
 import Head from 'next/head';
 import remarkMatterPlugin from '@/utilities/matter';
@@ -47,21 +46,6 @@ export async function getStaticProps({ params: { address } }: { params: { addres
   const contentRes = await fetch(data.result.content.json_uri);
   const { description, image } = await contentRes.json();
 
-  //   const author = "ETchEDh1Uk9B8mGaDkS7sy4zUkkqUVXcbpBn5rW5EiZE";
-
-  //   const description = `
-  // ---
-  // title: 'Dynamic Solana NFT Details'
-  // description: 'Explore the unique attributes and story behind this Solana NFT.'
-  // ---
-
-  // # Welcome to the NFT World
-
-  // This NFT, identified by the address ${address}, holds a unique place in the Solana ecosystem. Its attributes, history, and current ownership are a testament to the vibrant community and technological innovation that Solana supports.
-
-  // Explore below for more details about this NFT's journey and significance.
-  // `;
-
   // Directly pass markdown content to the component
   return {
     props: {
@@ -74,6 +58,7 @@ export async function getStaticProps({ params: { address } }: { params: { addres
         // createdAt: undefined,
       }
     },
+    revalidate: 60
   };
 }
 
@@ -93,6 +78,36 @@ type MarkdownFrontMatter = {
   // This is labeled "description" but is actually more akin to a "summary"
   description?: string;
 }
+
+const Stats = ({ author, mint }: { author: string, mint: string }) => (
+  <div className="flex flex-col sm:flex-row gap-2">
+    <div className="stats shadow stats-vertical w-full">
+      <div className="stat p-1 sm:p-2">
+        <div className="stat-desc">Author</div>
+        <div className="stat-title text-xs">
+          <div className="flex items-center space-x-2">
+            <span>{author}</span>
+            <a href={`https://solana.fm/address/${author}/transactions`} target="_blank" rel="noopener noreferrer">
+              <svg className="h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />  <polyline points="15 3 21 3 21 9" />  <line x1="10" y1="14" x2="21" y2="3" /></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div className="stat p-1 sm:p-2">
+        <div className="stat-desc">Mint</div>
+        <div className="stat-title text-xs">
+          <div className="flex items-center space-x-2">
+            <span>{mint}</span>
+            <a href={`https://solana.fm/address/${mint}/transactions`} target="_blank" rel="noopener noreferrer">
+              <svg className="h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />  <polyline points="15 3 21 3 21 9" />  <line x1="10" y1="14" x2="21" y2="3" /></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)
 
 function SolanaMarkdown({ nft, author }: SolanaMarkdownProps) {
   const [frontMatter, setMarkdownFrontMatter] = useState<MarkdownFrontMatter>();
@@ -119,10 +134,10 @@ function SolanaMarkdown({ nft, author }: SolanaMarkdownProps) {
   return (
     <>
       <Head>
-        <title>{title}</title>
+        <title>{title} | Etched</title>
         <meta name="description" content={description} />
         {/* OpenGraph */}
-        <meta property="og:title" content={title} />
+        <meta property="og:title" content={`${title} | Etched`} />
         <meta property="og:description" content={description} />
         <meta property="og:site_name" content="ETCHED" />
         <meta property="og:type" content="article" />
@@ -141,21 +156,11 @@ function SolanaMarkdown({ nft, author }: SolanaMarkdownProps) {
         <meta name="twitter:description" content={description} />
       </Head>
       <div className="flex justify-center">
-        <div className="py-6 prose lg:prose-xl">
-
-          <div className="flex gap-2">
-            <button className="badge badge-outline">
-              Author: {author}
-            </button>
-            {/* <button className="badge badge-outline">
-              Published At: {nft.createdAt.toString()}
-            </button> */}
-            <button className="badge badge-outline">
-              Permaweb Address: {nft.address}
-            </button>
+        <div className="py-6 px-4">
+          <ReactMarkdown className="prose lg:prose-xl">{markdownBody}</ReactMarkdown>
+          <div className='py-6'>
+            <Stats author={author} mint={nft.address} />
           </div>
-
-          <ReactMarkdown>{markdownBody}</ReactMarkdown>
         </div>
       </div>
     </>
