@@ -4,13 +4,12 @@ import remarkFrontmatter from 'remark-frontmatter';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkStringify from 'remark-stringify';
-import env from '../components/env';
 import Head from 'next/head';
 import remarkMatterPlugin from '@/utilities/matter';
 import type { Parent } from 'unist'
 import { useWallet } from '@solana/wallet-adapter-react';
-import VerifyWizard from './verify-wizard'; // Adjust the import path as necessary
-
+import dynamic from 'next/dynamic';
+const VerifyWizard = dynamic(() => import('./verify-wizard'), { ssr: false });
 // Order of operations
 // NFT
 // - Name (Max 32 characters)
@@ -107,7 +106,7 @@ function Asset({ nft, author }: SolanaMarkdownProps) {
   return (
     <>
       <Head>
-        <title>{title} | Etched</title>
+        <title>{`${title} | Etched`}</title>
         <meta name="description" content={description} />
         {/* OpenGraph */}
         <meta property="og:title" content={`${title} | Etched`} />
