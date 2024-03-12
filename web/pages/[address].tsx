@@ -72,6 +72,7 @@ type SolanaMarkdownProps = {
     // createdAt: Date;
     content: string;
     isVerified: boolean;
+    isCompressed: boolean;
   };
   author: string;
   routeType: RouteType;

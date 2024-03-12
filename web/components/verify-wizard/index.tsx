@@ -10,7 +10,7 @@ import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { signerIdentity, publicKey as umiPublicKey } from '@metaplex-foundation/umi';
 import { createSignerFromWalletAdapter } from '@metaplex-foundation/umi-signer-wallet-adapters'
 import { dasApi } from '@metaplex-foundation/digital-asset-standard-api'
-import { mplTokenMetadata, verifyCreatorV1, get, findMetadataPda } from '@metaplex-foundation/mpl-token-metadata'
+import { mplTokenMetadata, verifyCreatorV1, findMetadataPda } from '@metaplex-foundation/mpl-token-metadata'
 
 interface VerifyWizardProps {
   address: string;
