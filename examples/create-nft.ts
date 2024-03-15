@@ -11,6 +11,34 @@ import fs from 'fs/promises';
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { mplToolbox } from '@metaplex-foundation/mpl-toolbox';
 import { nftStorageUploader } from '@metaplex-foundation/umi-uploader-nft-storage';
+import { program } from 'commander';
+
+function parseArgumentsIntoOptions() {
+  program
+    .option('--markdownFilePath <path>', 'Path to the markdown file')
+    .option('--keypairFilePath <path>', 'Path to the keypair file')
+    .option('--mintFilePath <path>', 'Path to the mint file')
+    .option('--title <title>', 'Title of the NFT', 'Hello, World!') // Default title
+    .option(
+      '--image <url>',
+      'Image URL of the NFT',
+      'https://nftstorage.link/ipfs/bafybeigbhoe7436f2ieudxxw6a6ktg37xcrgf4b7iqol4uefnkaa42pdem'
+    ); // Default image
+
+  console.info(process.argv);
+
+  program.parse(process.argv);
+
+  const options = program.opts();
+
+  return {
+    markdownFilePath: options.markdownFilePath,
+    keypairFilePath: options.keypairFilePath,
+    mintFilePath: options.mintFilePath,
+    title: options.title,
+    image: options.image,
+  };
+}
 
 async function readKeypairFromFile(
   umi: Umi,
@@ -35,31 +63,8 @@ const uploadJson = async (umi, markdownFilePath, title, image) => {
   return uri;
 };
 
-function parseArgumentsIntoOptions(rawArgs) {
-  const args = rawArgs.slice(2);
-  const options = args.reduce((acc, arg, index, array) => {
-    if (arg.startsWith('--')) {
-      const nextArg = array[index + 1];
-      if (nextArg && !nextArg.startsWith('--')) {
-        acc[arg.replace('--', '')] = nextArg;
-      }
-    }
-    return acc;
-  }, {});
-
-  return {
-    markdownFilePath: options.markdownFilePath,
-    keypairFilePath: options.keypairFilePath,
-    mint: options.mintFilePath,
-    title: options.title || 'Hello, World!', // Default title
-    image:
-      options.image ||
-      'https://nftstorage.link/ipfs/bafybeigbhoe7436f2ieudxxw6a6ktg37xcrgf4b7iqol4uefnkaa42pdem', // Default image
-  };
-}
-
 async function main() {
-  const options = parseArgumentsIntoOptions(process.argv);
+  const options = parseArgumentsIntoOptions();
   if (!options.markdownFilePath) {
     console.error('Error: Markdown file path is required.');
     process.exit(1);
@@ -86,13 +91,14 @@ async function main() {
   );
 
   const mint =
-    (await readKeypairFromFile(umi, options.mint)) ?? generateSigner(umi);
-  // await createNft(umi, {
-  //   mint,
-  //   name: options.title,
-  //   uri,
-  //   sellerFeeBasisPoints: percentAmount(0),
-  // }).sendAndConfirm(umi);
+    (await readKeypairFromFile(umi, options.mintFilePath)) ??
+    generateSigner(umi);
+  await createNft(umi, {
+    mint,
+    name: options.title,
+    uri,
+    sellerFeeBasisPoints: percentAmount(0),
+  }).sendAndConfirm(umi);
 }
 
 main();
