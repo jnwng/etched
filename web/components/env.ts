@@ -5,8 +5,7 @@ import { cleanEnv, str, url } from 'envalid';
 const env = cleanEnv(process.env, {
   // Define your environment variables here with their validators
   NFT_STORAGE_API_KEY: str(),
-  DEVNET_RPC_ENDPOINT: url(),
-  MAINNET_RPC_ENDPOINT: url(),
+  RPC_ENDPOINT: url(),
 });
 
 export default env;

@@ -22,7 +22,7 @@ export async function getStaticProps({ params: { address } }: { params: { addres
   }
 
   // TODO(jon): Switch this endpoint based on environment / subdomain
-  const res = await fetch(env.DEVNET_RPC_ENDPOINT, {
+  const res = await fetch(env.RPC_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
