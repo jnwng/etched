@@ -1,15 +1,29 @@
----
-summary: Here's our summary
----
+# Etched: Writing that Endures
 
-# Hello, World!
+Your best ideas should endure the test of time. Companies shutter, preferences change: no matter what, you should own what you create. We looked around the web and saw an internet where platforms own our work, so we created Etched to put tools back in the hands of creators.
 
-This is Etched, an opinionated lens on the content you own, create and share. You write and export as a Markdown file, attach it to an NFT on the Solana blockchain, and Etched will provide you a clean, shareable, deeply integrated view on your own content that works across every surface you might want. Your writing is forever yours and its provenance is cryptographically signed with your public key. If you don't like how Etched displays your content, you'll be able to run and fully-host it yourself, too.
+Etched is a simple and elegant way to create, own, and share your writing, backed by the most durable source of data on the internet: the Solana blockchain. Here’s how it works today:
 
-When you share content on Etched, folks can annotate the content you've shared, and the annotations they create are theirs (although it is still associated with your writing!). As the author of the original content, you're welcome to choose whether to share all annotations, some annotations, or no annotations; but like well-worn used book, the annotator may choose to share their view of your work, too.
+1. Use your own tools to write using Markdown,
+2. Publish your writing on-chain using your favorite NFT creation tool of choice
+3. Use Etched to deep link to your work and get beautiful social embeds, SEO, annotations, and more!
 
-Given the permissionless nature of the blockchain, Etched will always choose to "trust, but verify" any content being displayed. The associated author of any piece of content must verify that they created that content, either by signing the original transaction that created that NFT, or via a separate "verification" instruction. All unverified content will not be surfaced in SEO and large, prominent warnings are displayed to ensure the the safety of the reader.
+We have a few operating principles that guide the development of Etched:
 
-Etched avoids lock-in, and rather looks to enhance. There are no first-party usernames on Etched; instead, creators may utilize the numerous blockchain-enabled domains / name registries that exist already. For example, pointing `etched.jnwng.sol` to `etched.sol/jnwng.sol` creates a verifiable link between your own domain name and Etched, and Etched will display an archive of all the pieces you've ever created.
+- **Own what you create** Everything displayed through Etched is owned by its author via NFTs. If Etched went away tomorrow, your writing would still be yours to use as you wish, unlike basically every other platform out there.
+- **Trust, but verify**: While the blockchain is permissionless, displaying work on Etched requires the author to opt-in to ensure maximum authenticity and provenance.
+- **Increase interoperability; reduce lock-in.** Bring your own shortnames, your own writing, even self-host if you want to—Etched glues it all together.
 
-Etched goes well-beyond writing and is intended to be a portal to everything beautiful on the blockchain. There are over 100 million etchings already on Solana, all of which are looking to escape their digital confines and live out in the wild. Etched is here to help!
+Our vision for Etched goes beyond a read-only experience. Readers will be able to bookmark and annotate the pieces that move them, creating a conversation between writers and readers. We envision communities of practice learning together by reading, responding, and building off of each other’s thoughts. Like a dogeared used book, our writing will become living documents that grow with every new reader.
+
+Rather than let perfection be the enemy of done, we’re sharing what we’ve built to-date as early as possible. Etched doesn’t have an easy way to create content (yet), doesn’t have a way to login (yet), and isn’t particularly beautiful (yet). Still, we’re excited to share what we’ve got; we’re building in public on [GitHub](https://github.com/jnwng/etched), and you can join us on our journey today:
+
+- **Register yourself for Etched by assigning a subdomain of any domain you own to Etched**
+  - E.g., `etched.jnwng.sol` -> `[etched.id/jnwng.sol](etched.id/jnwng.sol)`. This verifies your account, and automatically enables any writing NFTs to be displayed through Etched.
+- **Start writing!**
+  - Etched supports CommonMark + Github Flavored Markdown ([GFM](https://github.github.com/gfm/)).
+  - Anything you write in those formats and attached to a Solana NFT can be displayed on Etched. Offchain JSON follows the [Metaplex Non-Fungible Standard](https://developers.metaplex.com/token-metadata/token-standard#the-non-fungible-standard) schema
+  - Writing content should be placed as the value in the `description` field. See an example here.
+  - Minting the NFT is an exercise left to the reader, although basic tools will soon be provided.
+
+We value your feedback and any ideas you might have to better progress the sharing of knowledge onchain. Follow us on [X](https://x.com/_etched), and submit feature requests on [GitHub](https://github.com/jnwng/etched), where we’re building Etched in public. See you onchain!
