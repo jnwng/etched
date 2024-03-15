@@ -25,8 +25,6 @@ function parseArgumentsIntoOptions() {
       'https://nftstorage.link/ipfs/bafybeigbhoe7436f2ieudxxw6a6ktg37xcrgf4b7iqol4uefnkaa42pdem'
     ); // Default image
 
-  console.info(process.argv);
-
   program.parse(process.argv);
 
   const options = program.opts();
@@ -90,15 +88,17 @@ async function main() {
     options.image
   );
 
-  const mint =
-    (await readKeypairFromFile(umi, options.mintFilePath)) ??
-    generateSigner(umi);
+  const mint = options.mintFilePath
+    ? await readKeypairFromFile(umi, options.mintFilePath)
+    : generateSigner(umi);
+  console.info(`Minting ${mint.publicKey.toString()}`);
   await createNft(umi, {
     mint,
     name: options.title,
     uri,
     sellerFeeBasisPoints: percentAmount(0),
   }).sendAndConfirm(umi);
+  console.info(`Finished minting ${mint.publicKey.toString()}`);
 }
 
 main();
