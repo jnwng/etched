@@ -1,0 +1,98 @@
+import {
+  Signer,
+  Umi,
+  createSignerFromKeypair,
+  generateSigner,
+  keypairIdentity,
+  percentAmount,
+} from '@metaplex-foundation/umi';
+import { createNft } from '@metaplex-foundation/mpl-token-metadata';
+import fs from 'fs/promises';
+import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
+import { mplToolbox } from '@metaplex-foundation/mpl-toolbox';
+import { nftStorageUploader } from '@metaplex-foundation/umi-uploader-nft-storage';
+
+async function readKeypairFromFile(
+  umi: Umi,
+  filePath: string
+): Promise<Signer> {
+  const fileData = await fs.readFile(filePath, 'utf-8');
+  const secretKey = new Uint8Array(JSON.parse(fileData));
+  return createSignerFromKeypair(
+    umi,
+    umi.eddsa.createKeypairFromSecretKey(secretKey)
+  );
+}
+
+const uploadJson = async (umi, markdownFilePath, title, image) => {
+  const uri = await umi.uploader.uploadJson({
+    name: title,
+    symbol: 'ETCHED',
+    description: await fs.readFile(markdownFilePath, 'utf-8'),
+    image: image,
+  });
+  console.info({ uri });
+  return uri;
+};
+
+function parseArgumentsIntoOptions(rawArgs) {
+  const args = rawArgs.slice(2);
+  const options = args.reduce((acc, arg, index, array) => {
+    if (arg.startsWith('--')) {
+      const nextArg = array[index + 1];
+      if (nextArg && !nextArg.startsWith('--')) {
+        acc[arg.replace('--', '')] = nextArg;
+      }
+    }
+    return acc;
+  }, {});
+
+  return {
+    markdownFilePath: options.markdownFilePath,
+    keypairFilePath: options.keypairFilePath,
+    mint: options.mintFilePath,
+    title: options.title || 'Hello, World!', // Default title
+    image:
+      options.image ||
+      'https://nftstorage.link/ipfs/bafybeigbhoe7436f2ieudxxw6a6ktg37xcrgf4b7iqol4uefnkaa42pdem', // Default image
+  };
+}
+
+async function main() {
+  const options = parseArgumentsIntoOptions(process.argv);
+  if (!options.markdownFilePath) {
+    console.error('Error: Markdown file path is required.');
+    process.exit(1);
+  }
+
+  const umi = createUmi(process.env.DEVNET_HELIUS_ENDPOINT as string);
+
+  umi.use(nftStorageUploader({ token: process.env.NFT_STORAGE_API_KEY! }));
+  umi.use(mplToolbox());
+
+  let keypair;
+  if (options.keypairFilePath) {
+    keypair = await readKeypairFromFile(umi, options.keypairFilePath);
+  } else {
+    keypair = generateSigner(umi);
+  }
+  umi.use(keypairIdentity(keypair));
+
+  const uri = await uploadJson(
+    umi,
+    options.markdownFilePath,
+    options.title,
+    options.image
+  );
+
+  const mint =
+    (await readKeypairFromFile(umi, options.mint)) ?? generateSigner(umi);
+  // await createNft(umi, {
+  //   mint,
+  //   name: options.title,
+  //   uri,
+  //   sellerFeeBasisPoints: percentAmount(0),
+  // }).sendAndConfirm(umi);
+}
+
+main();
