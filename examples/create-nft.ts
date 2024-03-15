@@ -5,6 +5,7 @@ import {
   generateSigner,
   keypairIdentity,
   percentAmount,
+  transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { createNft } from '@metaplex-foundation/mpl-token-metadata';
 import fs from 'fs/promises';
@@ -12,6 +13,11 @@ import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { mplToolbox } from '@metaplex-foundation/mpl-toolbox';
 import { nftStorageUploader } from '@metaplex-foundation/umi-uploader-nft-storage';
 import { program } from 'commander';
+import {
+  ComputeBudgetInstruction,
+  ComputeBudgetProgram,
+} from '@solana/web3.js';
+import { fromWeb3JsInstruction } from '@metaplex-foundation/umi-web3js-adapters';
 
 function parseArgumentsIntoOptions() {
   program
@@ -97,7 +103,19 @@ async function main() {
     name: options.title,
     uri,
     sellerFeeBasisPoints: percentAmount(0),
-  }).sendAndConfirm(umi);
+  })
+    .prepend(
+      transactionBuilder([
+        {
+          instruction: fromWeb3JsInstruction(
+            ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 1000 })
+          ),
+          signers: [keypair],
+          bytesCreatedOnChain: 0,
+        },
+      ])
+    )
+    .sendAndConfirm(umi);
   console.info(`Finished minting ${mint.publicKey.toString()}`);
 }
 
