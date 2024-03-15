@@ -1,14 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkFrontmatter from 'remark-frontmatter';
-import { unified } from 'unified';
-import remarkParse from 'remark-parse';
-import remarkStringify from 'remark-stringify';
+import React, { useState, } from 'react';
 import Head from 'next/head';
-import remarkMatterPlugin from '@/utilities/matter';
-import type { Parent } from 'unist'
 import { useWallet } from '@solana/wallet-adapter-react';
 import dynamic from 'next/dynamic';
+import MarkdownProcessor from './processed-markdown';
 const VerifyWizard = dynamic(() => import('./verify-wizard'), { ssr: false });
 // Order of operations
 // NFT
@@ -72,29 +66,16 @@ const Stats = ({ author, mint }: { author: string, mint: string }) => (
 
 function Asset({ nft, author }: SolanaMarkdownProps) {
   const [frontMatter, setMarkdownFrontMatter] = useState<MarkdownFrontMatter>();
-  const [markdownBody, setMarkdownBody] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { publicKey } = useWallet();
 
+
+
   // TODO(jon): Reverse lookup the author to find their domain name and push a soft redirect
 
-  useEffect(() => {
-    const processor = unified()
-      .use(remarkParse)
-      .use(remarkStringify)
-      .use(remarkFrontmatter)
-      .use(() => (tree: Parent) => {
-        tree.children = tree.children.filter(child => child.type !== "yaml");
-      })
-      .use(remarkMatterPlugin)
-
-    processor.process(nft.content.trim()).then((file) => {
-      setMarkdownFrontMatter(file.data.matter as MarkdownFrontMatter);
-      // If not verified, only take the first 140 characters of the markdown content
-      const content = nft.isVerified ? String(file) : String(file).slice(0, 140);
-      setMarkdownBody(content);
-    });
-  }, [nft]);
+  const handleProcessed = (processedFrontMatter: MarkdownFrontMatter) => {
+    setMarkdownFrontMatter(processedFrontMatter);
+  };
 
   const title = frontMatter?.title ?? nft.name ?? "Untitled Piece";
   const description = frontMatter?.description ?? nft.content.slice(0, 140);
@@ -143,7 +124,9 @@ function Asset({ nft, author }: SolanaMarkdownProps) {
               <button onClick={handleVerifyClick} className="mt-2 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">Verify Now</button>
             </div>
           ) : null}
-          <ReactMarkdown className="py-6 prose lg:prose-xl">{markdownBody}</ReactMarkdown>
+          <div className='py-6'>
+            <MarkdownProcessor markdown={nft.content} onProcessed={handleProcessed} />
+          </div>
           <div className='py-6'>
             <Stats author={author} mint={nft.address} />
           </div>

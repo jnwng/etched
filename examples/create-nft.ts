@@ -68,7 +68,7 @@ async function main() {
     process.exit(1);
   }
 
-  const umi = createUmi(process.env.DEVNET_HELIUS_ENDPOINT as string);
+  const umi = createUmi(process.env.RPC_ENDPOINT as string);
 
   umi.use(nftStorageUploader({ token: process.env.NFT_STORAGE_API_KEY! }));
   umi.use(mplToolbox());

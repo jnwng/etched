@@ -23,7 +23,7 @@ Rather than let perfection be the enemy of done, we’re sharing what we’ve bu
 - **Start writing!**
   - Etched supports CommonMark + Github Flavored Markdown ([GFM](https://github.github.com/gfm/)).
   - Anything you write in those formats and attached to a Solana NFT can be displayed on Etched. Offchain JSON follows the [Metaplex Non-Fungible Standard](https://developers.metaplex.com/token-metadata/token-standard#the-non-fungible-standard) schema
-  - Writing content should be placed as the value in the `description` field. See an example here.
+  - Writing content should be placed as the value in the `description` field. See an example [here](https://github.com/jnwng/etched/blob/e15b9adbf4f6120fcc39c25701834a50f6ee564a/examples/create-nft.ts#L54-L59).
   - Minting the NFT is an exercise left to the reader, although basic tools will soon be provided.
 
 We value your feedback and any ideas you might have to better progress the sharing of knowledge onchain. Follow us on [X](https://x.com/_etched), and submit feature requests on [GitHub](https://github.com/jnwng/etched), where we’re building Etched in public. See you onchain!
