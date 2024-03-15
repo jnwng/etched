@@ -20,7 +20,7 @@ export const WalletButton = dynamic(
 
 export function SolanaProvider({ children }: { children: ReactNode }) {
   const cluster = WalletAdapterNetwork.Devnet;
-  const endpoint = useMemo(() => process.env.NEXT_PUBLIC_DEVNET_HELIUS_ENDPOINT!, [cluster]);
+  const endpoint = useMemo(() => process.env.NEXT_PUBLIC_RPC_ENDPOINT!, [cluster]);
   const wallets = useMemo(
     () => [
     ],

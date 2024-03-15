@@ -69,8 +69,6 @@ function Asset({ nft, author }: SolanaMarkdownProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { publicKey } = useWallet();
 
-
-
   // TODO(jon): Reverse lookup the author to find their domain name and push a soft redirect
 
   const handleProcessed = (processedFrontMatter: MarkdownFrontMatter) => {

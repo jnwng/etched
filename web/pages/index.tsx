@@ -18,7 +18,7 @@ export default function Home({ homepageContent }: { homepageContent: string }) {
     <div>
       <Head>
         <title>Welcome to Etched</title>
-        <meta name="description" content="Welcome to our Next.js application" />
+        <meta name="description" content="Etched: Writing that Endures" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
