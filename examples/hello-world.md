@@ -19,7 +19,7 @@ Our vision for Etched goes beyond a read-only experience. Readers will be able t
 Rather than let perfection be the enemy of done, we’re sharing what we’ve built to-date as early as possible. Etched doesn’t have an easy way to create content (yet), doesn’t have a way to login (yet), and isn’t particularly beautiful (yet). Still, we’re excited to share what we’ve got; we’re building in public on [GitHub](https://github.com/jnwng/etched), and you can join us on our journey today:
 
 - **Register yourself for Etched by assigning a subdomain of any domain you own to Etched**
-  - E.g., `etched.jnwng.sol` -> `[etched.id/jnwng.sol](etched.id/jnwng.sol)`. This verifies your account, and automatically enables any writing NFTs to be displayed through Etched.
+  - E.g., `etched.jnwng.sol` -> `etched.id/jnwng.sol`. This verifies your account, and automatically enables any writing NFTs to be displayed through Etched.
 - **Start writing!**
   - Etched supports CommonMark + Github Flavored Markdown ([GFM](https://github.github.com/gfm/)).
   - Anything you write in those formats and attached to a Solana NFT can be displayed on Etched. Offchain JSON follows the [Metaplex Non-Fungible Standard](https://developers.metaplex.com/token-metadata/token-standard#the-non-fungible-standard) schema
