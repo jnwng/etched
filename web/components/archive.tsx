@@ -16,7 +16,7 @@ const BlogList = ({ address, routeType }: BlogListProps) => {
     const getAssetsByCreator = async () => {
       let author = address;
       if (routeType === RouteType.Shortname) {
-        const connection = new Connection(process.env.NEXT_PUBLIC_MAINNET_HELIUS_ENDPOINT!)
+        const connection = new Connection(process.env.NEXT_PUBLIC_RPC_ENDPOINT!)
         const registryKey = getDomainKeySync(address);
         const { registry, nftOwner } = await NameRegistryState.retrieve(
           connection,
@@ -27,7 +27,7 @@ const BlogList = ({ address, routeType }: BlogListProps) => {
         console.info("Resolving", { author })
       }
 
-      const response = await fetch(process.env.NEXT_PUBLIC_DEVNET_HELIUS_ENDPOINT!, {
+      const response = await fetch(process.env.NEXT_PUBLIC_RPC_ENDPOINT!, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

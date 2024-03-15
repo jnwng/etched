@@ -27,7 +27,7 @@ const VerifyWizard: React.FC<VerifyWizardProps> = ({ address, isCompressed }) =>
     console.log('Verifying...');
     // Example: await verifyAPI(address, isCompressed);
     const creatorSigner = createSignerFromWalletAdapter(wallet)
-    const umi = createUmi(process.env.NEXT_PUBLIC_DEVNET_HELIUS_ENDPOINT!)
+    const umi = createUmi(process.env.NEXT_PUBLIC_RPC_ENDPOINT!)
       .use(mplBubblegum()).use(dasApi()).use(mplTokenMetadata()).use(signerIdentity(creatorSigner));
     if (isCompressed) {
       const assetWithProof = await getAssetWithProof(umi, umiPublicKey(address));

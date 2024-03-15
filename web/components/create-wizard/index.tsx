@@ -120,7 +120,7 @@ const StepTwo: React.FC<StepTwoProps> = ({ title, summary, markdown, }) => {
     const owner = wallet.publicKey.toString();
 
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_DEVNET_HELIUS_ENDPOINT!, {
+      const response = await fetch(process.env.NEXT_PUBLIC_RPC_ENDPOINT!, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
