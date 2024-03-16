@@ -14,31 +14,38 @@ type MarkdownFrontMatter = {
 
 type MarkdownProcessorProps = {
   markdown: string;
+  processedMarkdown?: string;
   onProcessed?: (frontMatter: MarkdownFrontMatter, markdownBody: string) => void; // Callback prop for passing data to parent
 };
 
-const MarkdownProcessor: React.FC<MarkdownProcessorProps> = ({ markdown, onProcessed }) => {
-  const [markdownBody, setMarkdownBody] = useState('');
+export const processMarkdown = (markdown: string) => {
+  const processor = unified()
+    .use(remarkParse)
+    .use(remarkStringify)
+    .use(remarkFrontmatter)
+    .use(() => (tree: Parent) => {
+      tree.children = tree.children.filter(child => child.type !== "yaml");
+    })
+    .use(remarkMatterPlugin);
+
+  const processedMarkdown = processor.processSync(markdown.trim());
+  const frontMatter = processedMarkdown.data.matter as MarkdownFrontMatter;
+  const content = String(processedMarkdown);
+  return { frontMatter, content }
+}
+
+const MarkdownProcessor: React.FC<MarkdownProcessorProps> = ({ markdown, processedMarkdown, onProcessed }) => {
+  const [markdownBody, setMarkdownBody] = useState(processedMarkdown || '');
 
   useEffect(() => {
-    const processor = unified()
-      .use(remarkParse)
-      .use(remarkStringify)
-      .use(remarkFrontmatter)
-      .use(() => (tree: Parent) => {
-        tree.children = tree.children.filter(child => child.type !== "yaml");
-      })
-      .use(remarkMatterPlugin);
-
-    processor.process(markdown.trim()).then((file) => {
-      const frontMatter = file.data.matter as MarkdownFrontMatter;
-      const processedMarkdownBody = String(file);
-      setMarkdownBody(processedMarkdownBody); // Update local state for rendering
+    if (!processedMarkdown) {
+      const { frontMatter, content } = processMarkdown(markdown)
+      setMarkdownBody(content); // Update local state for rendering
       if (onProcessed) {
-        onProcessed(frontMatter, processedMarkdownBody); // Pass data to parent component
+        onProcessed(frontMatter, content); // Pass data to parent component
       }
-    });
-  }, [markdown, onProcessed]);
+    }
+  }, [processedMarkdown, markdown, onProcessed]);
 
   // Render the processed Markdown content
   return (

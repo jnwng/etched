@@ -2,8 +2,12 @@ import React, { useState, } from 'react';
 import Head from 'next/head';
 import { useWallet } from '@solana/wallet-adapter-react';
 import dynamic from 'next/dynamic';
-import MarkdownProcessor from './processed-markdown';
+import MarkdownProcessor, { processMarkdown } from './processed-markdown';
 const VerifyWizard = dynamic(() => import('./verify-wizard'), { ssr: false });
+
+import type { DasApiAsset } from '@metaplex-foundation/digital-asset-standard-api'
+import { isVerifiedAsset } from '@/utilities/is-verified-asset';
+
 // Order of operations
 // NFT
 // - Name (Max 32 characters)
@@ -13,25 +17,13 @@ const VerifyWizard = dynamic(() => import('./verify-wizard'), { ssr: false });
 // - Name (Truncated at 32 characters)
 // - Summary (Truncated at 140 characters)
 // - Description (Content)
-// - 
 
-type SolanaMarkdownProps = {
-  nft: {
-    address: string;
-    name: string;
-    imageUri: string;
-    // createdAt: Date;
-    content: string;
-    isVerified: boolean;
-    isCompressed: boolean;
-  };
-  author: string;
-};
+type LinksOverride = {
+  [key: string]: string
+}
 
-type MarkdownFrontMatter = {
-  title?: string;
-  // This is labeled "description" but is actually more akin to a "summary"
-  description?: string;
+type AssetProps = {
+  asset: DasApiAsset,
 }
 
 const Stats = ({ author, mint }: { author: string, mint: string }) => (
@@ -64,19 +56,18 @@ const Stats = ({ author, mint }: { author: string, mint: string }) => (
   </div>
 )
 
-function Asset({ nft, author }: SolanaMarkdownProps) {
-  const [frontMatter, setMarkdownFrontMatter] = useState<MarkdownFrontMatter>();
+function Asset({ asset }: AssetProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { publicKey } = useWallet();
 
-  // TODO(jon): Reverse lookup the author to find their domain name and push a soft redirect
+  const { id: address, ownership: { owner: author }, content: { metadata: { name: assetName, description: unprocessedMarkdown = "" }, }, compression: { compressed } } = asset;
+  const isCompressed = compressed;
+  const isVerified = isVerifiedAsset(asset);
+  const { frontMatter, content } = processMarkdown(unprocessedMarkdown)
 
-  const handleProcessed = (processedFrontMatter: MarkdownFrontMatter) => {
-    setMarkdownFrontMatter(processedFrontMatter);
-  };
-
-  const title = frontMatter?.title ?? nft.name ?? "Untitled Piece";
-  const description = frontMatter?.description ?? nft.content.slice(0, 140);
+  const title = frontMatter?.title ?? assetName ?? "Untitled Piece";
+  const description = frontMatter?.description ?? isVerified ? content : content.slice(0, 140);
+  const image = (asset.content.links as unknown as LinksOverride)?.image
 
   const handleVerifyClick = () => {
     setIsModalOpen(true);
@@ -95,7 +86,7 @@ function Asset({ nft, author }: SolanaMarkdownProps) {
         {/* TODO: Make this the fully-qualified URL; pull out the domain entirely based on environment */}
         {/* <meta property="og:url" content={`https://etched.id/${frontMatter.slug}`} />  */}
         {/* TODO(jon): Replace this default */}
-        <meta property="og:image" content={nft.imageUri || "https://etched.com/default-image.jpg"} />
+        <meta property="og:image" content={image || "https://etched.com/default-image.jpg"} />
         {/* TODO: Pull published_time from the NFT */}
         {/* <meta property="article:published_time" content={nft.createdAt.toString() || new Date().toISOString()} /> */}
         {/* TODO: Pull author from the NFT */}
@@ -109,13 +100,13 @@ function Asset({ nft, author }: SolanaMarkdownProps) {
       <div className="flex justify-center">
         <div className="py-6 px-4">
           {/* Warning banner if not verified */}
-          {!nft.isVerified && author === publicKey?.toString() ? (
+          {!isVerified && author === publicKey?.toString() ? (
             <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4" role="alert">
               <p className="font-bold">Information</p>
               <p>This is your creation and it is not verified yet.</p>
               <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={handleVerifyClick}>Verify Now</button>
             </div>
-          ) : !nft.isVerified ? (
+          ) : !isVerified ? (
             <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
               <p className="font-bold">Notice</p>
               <p>If you believe this content is yours, please verify it to ensure its safety.</p>
@@ -123,17 +114,17 @@ function Asset({ nft, author }: SolanaMarkdownProps) {
             </div>
           ) : null}
           <div className='py-6'>
-            <MarkdownProcessor markdown={nft.content} onProcessed={handleProcessed} />
+            <MarkdownProcessor markdown={unprocessedMarkdown} processedMarkdown={content} />
           </div>
           <div className='py-6'>
-            <Stats author={author} mint={nft.address} />
+            <Stats author={author} mint={address} />
           </div>
         </div>
       </div>
       {/* DaisyUI Modal */}
       <div className={`modal ${isModalOpen ? 'modal-open' : ''}`}>
         <div className="modal-box">
-          <VerifyWizard address={nft.address} isCompressed={nft.isCompressed} />
+          <VerifyWizard address={address} isCompressed={isCompressed} />
           <div className="modal-action">
             <button onClick={() => setIsModalOpen(false)} className="btn">Close</button>
           </div>
