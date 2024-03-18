@@ -86,7 +86,7 @@ function Asset({ asset }: AssetProps) {
         {/* TODO: Make this the fully-qualified URL; pull out the domain entirely based on environment */}
         {/* <meta property="og:url" content={`https://etched.id/${frontMatter.slug}`} />  */}
         {/* TODO(jon): Replace this default */}
-        <meta property="og:image" content={image || "https://etched.com/default-image.jpg"} />
+        <meta property="og:image" content={image || "https://nftstorage.link/ipfs/bafybeigbhoe7436f2ieudxxw6a6ktg37xcrgf4b7iqol4uefnkaa42pdem"} />
         {/* TODO: Pull published_time from the NFT */}
         {/* <meta property="article:published_time" content={nft.createdAt.toString() || new Date().toISOString()} /> */}
         {/* TODO: Pull author from the NFT */}
@@ -96,6 +96,7 @@ function Asset({ asset }: AssetProps) {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={image || "https://nftstorage.link/ipfs/bafybeigbhoe7436f2ieudxxw6a6ktg37xcrgf4b7iqol4uefnkaa42pdem"} />
       </Head>
       <div className="flex justify-center">
         <div className="py-6 px-4">
