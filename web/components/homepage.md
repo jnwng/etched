@@ -18,4 +18,4 @@ Etched takes care of making it look great
 
 Curious how your writing will look?
 
-[See why we built Etched](/Etchwt7J9FAnkfxu1Kmux8uLMQmcHXF8eaSGF1ptAsAe)
+[See why we built Etched](/EtCH6Y9yAamG9BibkKJtGpXXh7MSnVBZVQ1q9hAGyXmW)
