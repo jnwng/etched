@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { Components } from 'react-markdown';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkStringify from 'remark-stringify';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkMatterPlugin from '@/utilities/matter'; // Adjust the import path as necessary
 import type { Parent } from 'unist';
+import remarkGfm from 'remark-gfm';
 
 type MarkdownFrontMatter = {
   title?: string;
@@ -15,7 +16,10 @@ type MarkdownFrontMatter = {
 type MarkdownProcessorProps = {
   markdown: string;
   processedMarkdown?: string;
-  onProcessed?: (frontMatter: MarkdownFrontMatter, markdownBody: string) => void; // Callback prop for passing data to parent
+  onProcessed?: (
+    frontMatter: MarkdownFrontMatter,
+    markdownBody: string
+  ) => void; // Callback prop for passing data to parent
 };
 
 export const processMarkdown = (markdown: string) => {
@@ -24,22 +28,26 @@ export const processMarkdown = (markdown: string) => {
     .use(remarkStringify)
     .use(remarkFrontmatter)
     .use(() => (tree: Parent) => {
-      tree.children = tree.children.filter(child => child.type !== "yaml");
+      tree.children = tree.children.filter((child) => child.type !== 'yaml');
     })
     .use(remarkMatterPlugin);
 
   const processedMarkdown = processor.processSync(markdown.trim());
   const frontMatter = processedMarkdown.data.matter as MarkdownFrontMatter;
   const content = String(processedMarkdown);
-  return { frontMatter, content }
-}
+  return { frontMatter, content };
+};
 
-const MarkdownProcessor: React.FC<MarkdownProcessorProps> = ({ markdown, processedMarkdown, onProcessed }) => {
+const MarkdownProcessor: React.FC<MarkdownProcessorProps> = ({
+  markdown,
+  processedMarkdown,
+  onProcessed,
+}) => {
   const [markdownBody, setMarkdownBody] = useState(processedMarkdown || '');
 
   useEffect(() => {
     if (!processedMarkdown) {
-      const { frontMatter, content } = processMarkdown(markdown)
+      const { frontMatter, content } = processMarkdown(markdown);
       setMarkdownBody(content); // Update local state for rendering
       if (onProcessed) {
         onProcessed(frontMatter, content); // Pass data to parent component
@@ -47,9 +55,44 @@ const MarkdownProcessor: React.FC<MarkdownProcessorProps> = ({ markdown, process
     }
   }, [processedMarkdown, markdown, onProcessed]);
 
+  const components: Components = {
+    code({ node, multiline, className, children, ...props }) {
+      if (multiline) {
+        return <code {...props}>{children}</code>;
+      } else {
+        return (
+          <code
+            {...props}
+            className="bg-gray-100 break-spaces whitespace-normal"
+          >
+            {children}
+          </code>
+        );
+      }
+    },
+    pre({ node, children, ...props }) {
+      const enhancedChildren = React.Children.map(children, (child) =>
+        React.isValidElement(child)
+          ? React.cloneElement(child, { multiline: true })
+          : child
+      );
+      return (
+        <pre className="overflow-x-auto max-w-[calc(100vw-2rem)]" {...props}>
+          {enhancedChildren}
+        </pre>
+      );
+    },
+  };
+
   // Render the processed Markdown content
   return (
-    <ReactMarkdown className="prose lg:prose-xl">{markdownBody}</ReactMarkdown>
+    <ReactMarkdown
+      className="prose lg:prose-xl max-w-[calc(100vw-2rem)]"
+      remarkPlugins={[remarkGfm]}
+      components={components}
+    >
+      {markdownBody}
+    </ReactMarkdown>
   );
 };
 

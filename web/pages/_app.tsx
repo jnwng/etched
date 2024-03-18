@@ -15,7 +15,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
       </div>
       <footer className="footer flex p-4 bg-base-300 text-base-content mt-4 justify-between items-center">
         <aside>
-          <p>Made with ❤️ in NYC by 5x5</p>
+          <p>Made with ❤️ in NYC by <Link className="underline" href="/5x5G4dhCSszaekGYcHT9deRRonJfDGHJm9EiKp1oqWYH">5x5</Link></p>
         </aside>
         <nav className="ml-auto">
           <a href="http://x.com/_etched" target="_blank" rel="noopener noreferrer">
