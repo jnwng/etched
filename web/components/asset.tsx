@@ -144,7 +144,8 @@ function Asset({ asset }: AssetProps) {
         <meta property="article:author" content={author || 'Anonymous'} />
 
         {/* Twitter Cards */}
-        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@etched_id" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         <meta
