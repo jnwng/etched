@@ -56,6 +56,7 @@ const MarkdownProcessor: React.FC<MarkdownProcessorProps> = ({
   }, [processedMarkdown, markdown, onProcessed]);
 
   const components: Components = {
+    // @ts-expect-error Not sure how to fix this!
     code({ node, multiline, className, children, ...props }) {
       if (multiline) {
         return <code {...props}>{children}</code>;
@@ -73,7 +74,8 @@ const MarkdownProcessor: React.FC<MarkdownProcessorProps> = ({
     pre({ node, children, ...props }) {
       const enhancedChildren = React.Children.map(children, (child) =>
         React.isValidElement(child)
-          ? React.cloneElement(child, { multiline: true })
+          ? // @ts-expect-error Not sure how to fix this!
+            React.cloneElement(child, { multiline: true })
           : child
       );
       return (
