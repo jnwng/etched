@@ -110,6 +110,9 @@ function Asset({ asset }: AssetProps) {
   const description =
     frontMatter?.description ?? isVerified ? content : content.slice(0, 140);
   const image = (asset.content.links as unknown as LinksOverride)?.image;
+  const imageWithTimestamp = image.includes('?')
+    ? `${image}&ts=${Date.now()}`
+    : `${image}?ts=${Date.now()}`;
 
   const handleVerifyClick = () => {
     setIsModalOpen(true);
@@ -131,7 +134,7 @@ function Asset({ asset }: AssetProps) {
         <meta
           property="og:image"
           content={
-            image ||
+            imageWithTimestamp ||
             'https://nftstorage.link/ipfs/bafybeigbhoe7436f2ieudxxw6a6ktg37xcrgf4b7iqol4uefnkaa42pdem'
           }
         />
@@ -147,8 +150,8 @@ function Asset({ asset }: AssetProps) {
         <meta
           name="twitter:image"
           content={
-            image ||
-            'https://nftstorage.link/ipfs/bafybeigbhoe7436f2ieudxxw6a6ktg37xcrgf4b7iqol4uefnkaa42pdem'
+            imageWithTimestamp ||
+            `https://nftstorage.link/ipfs/bafybeigbhoe7436f2ieudxxw6a6ktg37xcrgf4b7iqol4uefnkaa42pdem?${Date.now()}`
           }
         />
       </Head>
