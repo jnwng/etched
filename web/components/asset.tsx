@@ -157,7 +157,7 @@ function Asset({ asset }: AssetProps) {
         />
       </Head>
       <div className="flex justify-center">
-        <div className="py-6">
+        <div className="py-6 min-h-screen">
           {/* Warning banner if not verified */}
           {!isVerified && author === publicKey?.toString() ? (
             <div
