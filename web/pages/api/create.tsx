@@ -75,15 +75,17 @@ export default async function handler(
   }
 
   // Mint NFT
+  const treeAuthoritySigner = createSignerFromKeypair(
+    umi,
+    TREE_AUTHORITY_KEYPAIR
+  );
   try {
-    umi.use(signerIdentity(createNoopSigner(umiPublicKey(author))));
-    const builder = mintV1(umi, {
+    const authorNoopSigner = createNoopSigner(umiPublicKey(author));
+    umi.use(signerIdentity(authorNoopSigner));
+    let builder = mintV1(umi, {
       leafOwner: creatorPublicKey,
       merkleTree: umiPublicKey(TREE_PUBLIC_KEY),
-      treeCreatorOrDelegate: createSignerFromKeypair(
-        umi,
-        TREE_AUTHORITY_KEYPAIR
-      ),
+      treeCreatorOrDelegate: treeAuthoritySigner,
       metadata: {
         name: title,
         uri,
@@ -96,19 +98,19 @@ export default async function handler(
         instruction: fromWeb3JsInstruction(
           ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 1000 })
         ),
-        signers: [],
+        signers: [authorNoopSigner],
         bytesCreatedOnChain: 0,
       })
       .useV0();
 
     const { blockhash, lastValidBlockHeight } =
       await connection.getLatestBlockhash();
-    builder.setBlockhash(blockhash);
+    builder = builder.setBlockhash(blockhash);
 
-    const serializedTransaction = umi.transactions.serialize(
-      // TODO(jon): Figure out if there's a way to handle the partial signing without the blockhash for bookkeeping
-      await builder.buildWithLatestBlockhash(umi)
-    );
+    let txn = await builder.build(umi);
+    txn = await treeAuthoritySigner.signTransaction(txn);
+
+    const serializedTransaction = umi.transactions.serialize(txn);
     const base64Txn = Buffer.from(serializedTransaction).toString('base64');
     console.info('Serializing for minting: ', {
       txSig: base64Txn,
