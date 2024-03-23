@@ -1,23 +1,28 @@
 import React, { useState } from 'react';
-import CreateWizard from '../components/create-wizard'; // Assuming the path to your component
 import ProcessedMarkdown from '@/components/processed-markdown';
+import dynamic from 'next/dynamic';
+const CreateWizard = dynamic(() => import('../components/create-wizard'), {
+  ssr: false,
+});
 
 const CreatePage = () => {
   const [markdown, setMarkdown] = useState('');
   const [isMinting, setIsMinting] = useState(false); // State to manage minting status
+  const [processedMarkdown, setProcessedMarkdown] = useState('');
 
-  const handleMarkdownChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleMarkdownChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     setMarkdown(event.target.value);
   };
 
-  const handleMintClick = () => {
+  const handleMintClick = async () => {
     console.log('Minting...');
-    setIsMinting(true); // Open the modal to show the CreateWizard component
-    // Implement your minting logic here
+    setIsMinting(true);
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-[90vh]">
       <div className="w-1/2 p-4">
         <textarea
           className="textarea textarea-bordered h-full w-full"
@@ -28,8 +33,11 @@ const CreatePage = () => {
         ></textarea>
       </div>
       <div className="w-1/2 p-4 flex flex-col">
-        <div className="flex-grow overflow-auto prose lg:prose-xl">
-          <ProcessedMarkdown markdown={markdown} />
+        <div className="flex-grow overflow-auto">
+          <ProcessedMarkdown
+            markdown={markdown}
+            onProcessed={(_, content) => setProcessedMarkdown(content)}
+          />
         </div>
 
         <hr className="my-4" />
@@ -44,14 +52,24 @@ const CreatePage = () => {
       </div>
 
       {/* DaisyUI Modal */}
-      <input type="checkbox" id="create-wizard-modal" className="modal-toggle" checked={isMinting} readOnly />
+      <input
+        type="checkbox"
+        id="create-wizard-modal"
+        className="modal-toggle"
+        checked={isMinting}
+        readOnly
+      />
       <div className="modal">
-        <div className="modal-box">
+        <div className="modal-box relative">
+          <label
+            htmlFor="create-wizard-modal"
+            className="btn btn-sm btn-circle absolute right-2 top-2"
+            onClick={() => setIsMinting(false)}
+          >
+            ×
+          </label>
           <h3 className="font-bold text-lg">Minting Wizard</h3>
-          <CreateWizard markdown={markdown} />
-          <div className="modal-action">
-            <label htmlFor="create-wizard-modal" className="btn" onClick={() => setIsMinting(false)}>Close</label>
-          </div>
+          <CreateWizard markdown={processedMarkdown} />
         </div>
       </div>
     </div>
