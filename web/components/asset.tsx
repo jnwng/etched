@@ -205,7 +205,7 @@ function Asset({ asset }: AssetProps) {
       {/* DaisyUI Modal */}
       <div className={`modal ${isModalOpen ? 'modal-open' : ''}`}>
         <div className="modal-box">
-          <VerifyWizard address={address} isCompressed={isCompressed} />
+          <VerifyWizard asset={asset} />
           <div className="modal-action">
             <button onClick={() => setIsModalOpen(false)} className="btn">
               Close
