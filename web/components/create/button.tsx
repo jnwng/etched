@@ -82,7 +82,6 @@ const MintTransactionButton = ({
         umi.transactions.deserialize(Buffer.from(transaction, 'base64'))
       );
       console.info({ deserialized });
-      // const versionedTxn = new VersionedTransaction(deserializedTransaction);
       return { transaction: deserialized, blockhash, lastValidBlockHeight };
     } catch (error) {
       console.error('Error during the minting process:', error);

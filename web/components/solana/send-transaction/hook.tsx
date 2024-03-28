@@ -26,8 +26,22 @@ const useSolanaTransaction = (
 
   const sendTransaction = async () => {
     setState(TransactionState.FetchingTransaction);
-    const { transaction, blockhash, lastValidBlockHeight } =
-      await fetchTransaction();
+    let transaction: VersionedTransaction | null = null;
+    let blockhash: string | null = null;
+    let lastValidBlockHeight: number | null = null;
+
+    try {
+      const result = await fetchTransaction();
+      transaction = result.transaction;
+      blockhash = result.blockhash;
+      lastValidBlockHeight = result.lastValidBlockHeight;
+    } catch (error) {
+      console.error(error);
+      setError(error as Error);
+      setState(TransactionState.Failed);
+      return;
+    }
+
     if (!transaction) {
       console.error('Transaction is null');
       setError(new Error('Transaction not found'));
