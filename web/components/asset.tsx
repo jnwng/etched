@@ -19,7 +19,7 @@ import { isVerifiedAsset } from '@/utilities/is-verified-asset';
 // - Description (Content)
 
 type LinksOverride = {
-  [key: string]: string;
+  [key: string]: string | undefined;
 };
 
 type AssetProps = {
@@ -100,9 +100,7 @@ function Asset({ asset }: AssetProps) {
     content: {
       metadata: { name: assetName, description: unprocessedMarkdown = '' },
     },
-    compression: { compressed },
   } = asset;
-  const isCompressed = compressed;
   const isVerified = isVerifiedAsset(asset);
   const { frontMatter, content } = processMarkdown(unprocessedMarkdown);
 
@@ -110,7 +108,7 @@ function Asset({ asset }: AssetProps) {
   const description =
     frontMatter?.description ?? isVerified ? content : content.slice(0, 140);
   const image = (asset.content.links as unknown as LinksOverride)?.image;
-  const imageWithTimestamp = image.includes('?')
+  const imageWithTimestamp = image?.includes('?')
     ? `${image}&ts=${Date.now()}`
     : `${image}?ts=${Date.now()}`;
 

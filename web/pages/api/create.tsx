@@ -20,7 +20,7 @@ umi.use(mplToolbox());
 const TREE_AUTHORITY_KEYPAIR = umi.eddsa.createKeypairFromSecretKey(
   new Uint8Array(JSON.parse(process.env.TREE_AUTHORITY_SECRET_KEY!))
 );
-const TREE_PUBLIC_KEY = process.env.TREE_PUBLIC_KEY as string;
+const TREE_PUBLIC_KEY = process.env.NEXT_PUBLIC_TREE_PUBLIC_KEY as string;
 
 type RequestBody = {
   title: string;
