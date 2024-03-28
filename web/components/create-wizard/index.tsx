@@ -52,7 +52,6 @@ const WizardPage = ({ markdown }: { markdown: string }) => {
           title={title}
           author={wallet.publicKey?.toString() || ''}
           markdown={markdown}
-          disabled={!wallet.publicKey}
         />
       </div>
     </div>
