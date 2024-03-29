@@ -13,7 +13,7 @@ export enum RouteType {
   // etched.id/:shortname/:address
   ShortnameAssetAddress = 'ADDRESS',
   //etched.id/:address
-  AssetAddress = 'ASSET_ADDRESS',
+  AssetAddress = 'ASSET_ADDRESS'
   // Take into account `etched.id/:creator-address`
 }
 
@@ -27,8 +27,8 @@ async function getAsset(pubkey: string): Promise<DasApiAsset | null> {
       jsonrpc: '2.0',
       id: 1,
       method: 'getAsset',
-      params: [pubkey],
-    }),
+      params: [pubkey]
+    })
   });
   const data = await res.json();
 
@@ -42,7 +42,7 @@ async function getAsset(pubkey: string): Promise<DasApiAsset | null> {
     const {
       name,
       description,
-      image,
+      image
     }: Pick<
       Partial<DasApiAsset['content']['metadata']>,
       'name' | 'description' | 'image'
@@ -55,9 +55,9 @@ async function getAsset(pubkey: string): Promise<DasApiAsset | null> {
           ...data.result.content.metadata,
           name,
           description,
-          image,
-        },
-      },
+          image
+        }
+      }
     };
   }
   return data.result as DasApiAsset;
@@ -68,7 +68,7 @@ export const getStaticPaths = () => {
 };
 
 export async function getStaticProps({
-  params: { assetOrShortname },
+  params: { assetOrShortname }
 }: {
   params: { assetOrShortname: string };
 }): Promise<GetStaticPropsResult<SolanaMarkdownProps>> {
@@ -111,8 +111,8 @@ export async function getStaticProps({
         props: {
           shortname: foundShortname!,
           shortnameRegistered: isShortnameRegistered,
-          routeType: RouteType.Archive,
-        },
+          routeType: RouteType.Archive
+        }
       };
     }
   }
@@ -124,14 +124,14 @@ export async function getStaticProps({
   }
 
   const {
-    ownership: { owner: author },
+    ownership: { owner: author }
   } = asset;
 
   const verifiedAsset = isVerifiedAsset(asset);
 
   // Step 3: Get shortname from owner address and redirect based on verification
   const { verified: isShortnameRegistered } = await isRegisteredShortname({
-    publicKeyStr: author,
+    publicKeyStr: author
   });
 
   if (verifiedAsset) {
@@ -141,20 +141,20 @@ export async function getStaticProps({
           props: {
             asset,
             shortnameRegistered: true,
-            routeType: RouteType.ShortnameAssetAddress,
-          },
+            routeType: RouteType.ShortnameAssetAddress
+          }
         };
       } else {
         return {
           props: {
             asset,
             shortnameRegistered: true,
-            routeType: RouteType.ShortnameAssetAddress,
+            routeType: RouteType.ShortnameAssetAddress
           },
           redirect: {
             destination: `/${shortname}/${pubkey}`,
-            permanent: false,
-          },
+            permanent: false
+          }
         };
       }
     } else {
@@ -163,20 +163,20 @@ export async function getStaticProps({
           props: {
             asset,
             shortnameRegistered: false,
-            routeType: RouteType.AssetAddress,
+            routeType: RouteType.AssetAddress
           },
           redirect: {
             destination: `/${pubkey}`,
-            permanent: false,
-          },
+            permanent: false
+          }
         };
       } else {
         return {
           props: {
             asset,
             shortnameRegistered: false,
-            routeType: RouteType.AssetAddress,
-          },
+            routeType: RouteType.AssetAddress
+          }
         };
       }
     }
@@ -187,16 +187,16 @@ export async function getStaticProps({
         props: {
           shortname,
           routeType: RouteType.Archive,
-          shortnameRegistered: isShortnameRegistered,
-        },
+          shortnameRegistered: isShortnameRegistered
+        }
       };
     } else {
       return {
         props: {
           asset,
           routeType: RouteType.AssetAddress,
-          assetVerified: false,
-        },
+          assetVerified: false
+        }
       };
     }
   }
