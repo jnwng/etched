@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
-import Head from 'next/head';
 import { useWallet } from '@solana/wallet-adapter-react';
 import dynamic from 'next/dynamic';
-import MarkdownProcessor, { processMarkdown } from './processed-markdown';
+import Head from 'next/head';
+import React, { useEffect, useState } from 'react';
+import MarkdownProcessor, {
+  type MarkdownFrontMatter,
+  processMarkdown,
+} from './processed-markdown';
 const VerifyWizard = dynamic(() => import('./verify-wizard'), { ssr: false });
 
-import type { DasApiAsset } from '@metaplex-foundation/digital-asset-standard-api';
 import { isVerifiedAsset } from '@/utilities/is-verified-asset';
+import type { DasApiAsset } from '@metaplex-foundation/digital-asset-standard-api';
 
 // Order of operations
 // NFT
@@ -93,6 +96,10 @@ const Stats = ({ author, mint }: { author: string; mint: string }) => (
 function Asset({ asset }: AssetProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { publicKey } = useWallet();
+  const [frontMatter, setFrontMatter] = useState<MarkdownFrontMatter | null>(
+    null
+  );
+  const [content, setContent] = useState('');
 
   const {
     id: address,
@@ -102,11 +109,23 @@ function Asset({ asset }: AssetProps) {
     },
   } = asset;
   const isVerified = isVerifiedAsset(asset);
-  const { frontMatter, content } = processMarkdown(unprocessedMarkdown);
+
+  useEffect(() => {
+    const processMarkdownAsync = async () => {
+      const { frontMatter, content } = await processMarkdown(
+        unprocessedMarkdown
+      );
+      setFrontMatter(frontMatter);
+      setContent(content);
+    };
+
+    processMarkdownAsync();
+  }, [unprocessedMarkdown]);
 
   const title = frontMatter?.title ?? assetName ?? 'Untitled Piece';
   const description =
-    frontMatter?.description ?? isVerified ? content : content.slice(0, 140);
+    frontMatter?.description ?? (isVerified ? content : content.slice(0, 140));
+
   const image = (asset.content.links as unknown as LinksOverride)?.image;
   const imageWithTimestamp = image?.includes('?')
     ? `${image}&ts=${Date.now()}`

@@ -1,4 +1,4 @@
-import { cleanEnv, str, url } from 'envalid';
+import { url, cleanEnv } from 'envalid';
 
 // Load and validate .env variables
 // Use `dotenv` or a similar package if you need to manually load .env files in a non-Node.js environment
