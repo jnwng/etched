@@ -46,3 +46,4 @@ Thumbs.db
 .keys/
 .env
 .env.production
+.env.local

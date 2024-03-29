@@ -1,23 +1,23 @@
+import { createNft } from '@metaplex-foundation/mpl-token-metadata';
+import { mplToolbox } from '@metaplex-foundation/mpl-toolbox';
 import {
-  Signer,
-  Umi,
+  type Signer,
+  type Umi,
   createSignerFromKeypair,
   generateSigner,
   keypairIdentity,
   percentAmount,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { createNft } from '@metaplex-foundation/mpl-token-metadata';
-import fs from 'fs/promises';
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
-import { mplToolbox } from '@metaplex-foundation/mpl-toolbox';
 import { nftStorageUploader } from '@metaplex-foundation/umi-uploader-nft-storage';
-import { program } from 'commander';
+import { fromWeb3JsInstruction } from '@metaplex-foundation/umi-web3js-adapters';
 import {
   ComputeBudgetInstruction,
   ComputeBudgetProgram,
 } from '@solana/web3.js';
-import { fromWeb3JsInstruction } from '@metaplex-foundation/umi-web3js-adapters';
+import { program } from 'commander';
+import fs from 'fs/promises';
 
 function parseArgumentsIntoOptions() {
   program
@@ -76,7 +76,7 @@ async function main() {
 
   const umi = createUmi(process.env.RPC_ENDPOINT as string);
 
-  // umi.use(nftStorageUploader({ token: process.env.NFT_STORAGE_API_KEY! }));
+  umi.use(nftStorageUploader({ token: process.env.NFT_STORAGE_API_KEY! }));
   umi.use(mplToolbox());
 
   let keypair;
