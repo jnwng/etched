@@ -1,12 +1,11 @@
-import { useRouter } from 'next/router';
-import Archive from '../components/archive';
-import Asset from '../components/asset';
 import env from '@/components/env';
 import isRegisteredShortname from '@/utilities/is-registered-shortname'; // Assuming this utility exists
 import { isVerifiedAsset } from '@/utilities/is-verified-asset';
+import Archive from '../components/archive';
+import Asset from '../components/asset';
 
 import type { DasApiAsset } from '@metaplex-foundation/digital-asset-standard-api';
-import { GetStaticPropsResult } from 'next';
+import type { GetStaticPropsResult } from 'next';
 
 export enum RouteType {
   // etched.id/:shortname
