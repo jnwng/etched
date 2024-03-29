@@ -76,7 +76,7 @@ async function main() {
 
   const umi = createUmi(process.env.RPC_ENDPOINT as string);
 
-  umi.use(nftStorageUploader({ token: process.env.NFT_STORAGE_API_KEY! }));
+  // umi.use(nftStorageUploader({ token: process.env.NFT_STORAGE_API_KEY! }));
   umi.use(mplToolbox());
 
   let keypair;

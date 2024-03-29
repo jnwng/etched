@@ -5,17 +5,16 @@ import env from '@/components/env';
 import isRegisteredShortname from '@/utilities/is-registered-shortname'; // Assuming this utility exists
 import { isVerifiedAsset } from '@/utilities/is-verified-asset';
 
-import type { DasApiAsset } from '@metaplex-foundation/digital-asset-standard-api'
+import type { DasApiAsset } from '@metaplex-foundation/digital-asset-standard-api';
 import { GetStaticPropsResult } from 'next';
-
 
 export enum RouteType {
   // etched.id/:shortname
-  Archive = "SHORTNAME",
+  Archive = 'SHORTNAME',
   // etched.id/:shortname/:address
-  ShortnameAssetAddress = "ADDRESS",
+  ShortnameAssetAddress = 'ADDRESS',
   //etched.id/:address
-  AssetAddress = "ASSET_ADDRESS"
+  AssetAddress = 'ASSET_ADDRESS',
   // Take into account `etched.id/:creator-address`
 }
 
@@ -26,9 +25,9 @@ async function getAsset(pubkey: string): Promise<DasApiAsset | null> {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      jsonrpc: "2.0",
+      jsonrpc: '2.0',
       id: 1,
-      method: "getAsset",
+      method: 'getAsset',
       params: [pubkey],
     }),
   });
@@ -38,10 +37,17 @@ async function getAsset(pubkey: string): Promise<DasApiAsset | null> {
     return null;
   }
 
-  const metadata = data.result.content.metadata
+  const metadata = data.result.content.metadata;
   if (!metadata.name || !metadata.description) {
     const contentRes = await fetch(data.result.content.json_uri);
-    const { name, description, image }: Pick<Partial<DasApiAsset['content']['metadata']>, 'name' | 'description' | 'image'> = await contentRes.json();
+    const {
+      name,
+      description,
+      image,
+    }: Pick<
+      Partial<DasApiAsset['content']['metadata']>,
+      'name' | 'description' | 'image'
+    > = await contentRes.json();
     data.result = {
       ...data.result,
       content: {
@@ -50,60 +56,65 @@ async function getAsset(pubkey: string): Promise<DasApiAsset | null> {
           ...data.result.content.metadata,
           name,
           description,
-          image
-        }
-      }
-    }
+          image,
+        },
+      },
+    };
   }
   return data.result as DasApiAsset;
 }
 
 export const getStaticPaths = () => {
-  return { paths: [], fallback: "blocking" };
+  return { paths: [], fallback: 'blocking' };
 };
 
-export async function getStaticProps({ params: { assetOrShortname } }: { params: { assetOrShortname: string } }): Promise<GetStaticPropsResult<SolanaMarkdownProps>> {
+export async function getStaticProps({
+  params: { assetOrShortname },
+}: {
+  params: { assetOrShortname: string };
+}): Promise<GetStaticPropsResult<SolanaMarkdownProps>> {
   // Step 1: Regex match to differentiate patterns
-  const shortnameAssetPattern = /^(?<shortname>[^.]+\.sol)\/(?<pubkey>[A-Za-z0-9]+)$/;
+  const shortnameAssetPattern =
+    /^(?<shortname>[^.]+\.sol)\/(?<pubkey>[A-Za-z0-9]+)$/;
   const shortnamePattern = /^(?<shortname>[^.]+\.sol)$/;
   const pubkeyPattern = /^(?<pubkey>[A-Za-z0-9]+)$/;
   let pubkey, shortname;
 
   if (assetOrShortname.length === 1) {
-    [assetOrShortname] = assetOrShortname
+    [assetOrShortname] = assetOrShortname;
   } else if (assetOrShortname.length === 2) {
-    assetOrShortname = `${assetOrShortname[0]}/${assetOrShortname[1]}`
+    assetOrShortname = `${assetOrShortname[0]}/${assetOrShortname[1]}`;
   }
 
   if (shortnameAssetPattern.test(assetOrShortname)) {
     const match = assetOrShortname.match(shortnameAssetPattern);
-    shortname = match?.groups?.shortname
-    pubkey = match?.groups?.pubkey
+    shortname = match?.groups?.shortname;
+    pubkey = match?.groups?.pubkey;
   } else if (shortnamePattern.test(assetOrShortname)) {
     const match = assetOrShortname.match(shortnamePattern);
-    shortname = match?.groups?.shortname
+    shortname = match?.groups?.shortname;
   } else if (pubkeyPattern.test(assetOrShortname)) {
     const match = assetOrShortname.match(pubkeyPattern);
-    pubkey = match?.groups?.pubkey
+    pubkey = match?.groups?.pubkey;
   } else {
     // Handle invalid input
-    console.error("Url not matched, rendering notFound", assetOrShortname)
+    console.error('Url not matched, rendering notFound', assetOrShortname);
     return { notFound: true };
   }
 
   if (!pubkey) {
     if (!shortname) {
-
       return { notFound: true };
     } else {
-      const { verified: isShortnameRegistered, shortname: foundShortname } = await isRegisteredShortname({ domainName: shortname });
+      const { verified: isShortnameRegistered, shortname: foundShortname } =
+        await isRegisteredShortname({ domainName: shortname });
       return {
         props: {
           shortname: foundShortname!,
           shortnameRegistered: isShortnameRegistered,
-          routeType: RouteType.Archive
-        }
-      }
+          routeType: RouteType.Archive,
+        },
+      };
     }
   }
 
@@ -113,14 +124,17 @@ export async function getStaticProps({ params: { assetOrShortname } }: { params:
     return { notFound: true };
   }
 
-  const { ownership: { owner: author }, } = asset;
+  const {
+    ownership: { owner: author },
+  } = asset;
 
-  const verifiedAsset = isVerifiedAsset(asset)
+  const verifiedAsset = isVerifiedAsset(asset);
 
   // Step 3: Get shortname from owner address and redirect based on verification
-  const { verified: isShortnameRegistered, } = await isRegisteredShortname({ publicKeyStr: author });
+  const { verified: isShortnameRegistered } = await isRegisteredShortname({
+    publicKeyStr: author,
+  });
 
-  console.info(({ verifiedAsset, isShortnameRegistered, assetOrShortname }))
   if (verifiedAsset) {
     if (isShortnameRegistered) {
       if (shortname && assetOrShortname === `${shortname}/${pubkey}`) {
@@ -128,20 +142,20 @@ export async function getStaticProps({ params: { assetOrShortname } }: { params:
           props: {
             asset,
             shortnameRegistered: true,
-            routeType: RouteType.ShortnameAssetAddress
-          }
+            routeType: RouteType.ShortnameAssetAddress,
+          },
         };
       } else {
         return {
           props: {
             asset,
             shortnameRegistered: true,
-            routeType: RouteType.ShortnameAssetAddress
+            routeType: RouteType.ShortnameAssetAddress,
           },
           redirect: {
             destination: `/${shortname}/${pubkey}`,
             permanent: false,
-          }
+          },
         };
       }
     } else {
@@ -150,22 +164,21 @@ export async function getStaticProps({ params: { assetOrShortname } }: { params:
           props: {
             asset,
             shortnameRegistered: false,
-            routeType: RouteType.AssetAddress
+            routeType: RouteType.AssetAddress,
           },
           redirect: {
             destination: `/${pubkey}`,
             permanent: false,
-          }
-        }
+          },
+        };
       } else {
         return {
           props: {
             asset,
             shortnameRegistered: false,
-            routeType: RouteType.AssetAddress
+            routeType: RouteType.AssetAddress,
           },
         };
-
       }
     }
   } else {
@@ -175,16 +188,16 @@ export async function getStaticProps({ params: { assetOrShortname } }: { params:
         props: {
           shortname,
           routeType: RouteType.Archive,
-          shortnameRegistered: isShortnameRegistered
-        }
+          shortnameRegistered: isShortnameRegistered,
+        },
       };
     } else {
       return {
         props: {
           asset,
           routeType: RouteType.AssetAddress,
-          assetVerified: false
-        }
+          assetVerified: false,
+        },
       };
     }
   }
@@ -207,16 +220,24 @@ type SolanaMarkdownProps = AssetAddressProps | ArchiveProps;
 const AddressPage = (props: SolanaMarkdownProps) => {
   const { routeType } = props;
 
-  console.info({ props })
   // We don't currently support arbitrary address archives
   if (routeType === RouteType.Archive) {
     const { shortname, shortnameRegistered } = props;
-    return <Archive address={shortname!} routeType={routeType} shortnameRegistered={shortnameRegistered!} />
+    return (
+      <Archive
+        address={shortname!}
+        routeType={routeType}
+        shortnameRegistered={shortnameRegistered!}
+      />
+    );
   }
 
-  if (routeType === RouteType.AssetAddress || routeType === RouteType.ShortnameAssetAddress) {
+  if (
+    routeType === RouteType.AssetAddress ||
+    routeType === RouteType.ShortnameAssetAddress
+  ) {
     const { asset } = props;
-    return <Asset asset={asset} />
+    return <Asset asset={asset} />;
   }
 
   // TODO(jon): Figure out notFound,
