@@ -10,8 +10,6 @@ import {
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { ReactNode, useCallback, useMemo } from 'react';
 
-require('@solana/wallet-adapter-react-ui/styles.css');
-
 export const WalletButton = dynamic(
   async () =>
     (await import('@solana/wallet-adapter-react-ui')).WalletMultiButton,
@@ -20,12 +18,11 @@ export const WalletButton = dynamic(
 
 export function SolanaProvider({ children }: { children: ReactNode }) {
   const cluster = WalletAdapterNetwork.Devnet;
-  const endpoint = useMemo(() => process.env.NEXT_PUBLIC_RPC_ENDPOINT!, [cluster]);
-  const wallets = useMemo(
-    () => [
-    ],
+  const endpoint = useMemo(
+    () => process.env.NEXT_PUBLIC_RPC_ENDPOINT!,
     [cluster]
   );
+  const wallets = useMemo(() => [], [cluster]);
 
   const onError = useCallback((error: WalletError) => {
     console.error(error);
