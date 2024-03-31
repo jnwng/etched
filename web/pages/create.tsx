@@ -4,16 +4,70 @@ import dynamic from 'next/dynamic';
 const CreateWizard = dynamic(() => import('../components/create-wizard'), {
   ssr: false,
 });
+import { unified } from 'unified';
+import rehypeParse from 'rehype-parse';
+import rehypeRemark from 'rehype-remark';
+import remarkStringify from 'remark-stringify';
+import { Parent, Node } from 'unist';
+import type { Element } from 'hast';
 
 const CreatePage = () => {
   const [markdown, setMarkdown] = useState('');
   const [isMinting, setIsMinting] = useState(false); // State to manage minting status
   const [processedMarkdown, setProcessedMarkdown] = useState('');
 
-  const handleMarkdownChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    setMarkdown(event.target.value);
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    e.preventDefault(); // Prevent the default paste behavior
+
+    // Get the text content from the clipboard
+    const pastedText = e.clipboardData.getData('text/plain');
+    const pastedHtml = e.clipboardData.getData('text/html');
+
+    let textToInsert = pastedText;
+    if (pastedHtml) {
+      const processor = unified()
+        .use(rehypeParse, { fragment: true }) // Parse the pasted HTML
+        .use(() => (tree: Parent) => {
+          const firstNonMetaChild = tree.children.find(
+            (child) => (child as Element).tagName !== 'meta'
+          );
+          if (firstNonMetaChild && 'children' in firstNonMetaChild) {
+            tree.children = firstNonMetaChild.children as Node[];
+          }
+        })
+        .use(rehypeRemark, { document: false, newlines: true }) // Convert HTML to Markdown
+        .use(remarkStringify, {
+          handlers: {
+            break: () => {
+              return '\n';
+            },
+          },
+        }); // Stringify to Markdown
+      textToInsert = processor
+        .processSync(pastedHtml)
+        .toString()
+        .replace(/\n\n/g, '\n');
+    }
+
+    // Insert the processed text into the textarea
+    // Assuming you want to append the text at the current cursor position
+    const textarea = e.target as HTMLTextAreaElement;
+    const startPos = textarea.selectionStart;
+    const endPos = textarea.selectionEnd;
+    const textBefore = textarea.value.substring(0, startPos);
+    const textAfter = textarea.value.substring(endPos, textarea.value.length);
+    textarea.value = textBefore + textToInsert + textAfter;
+
+    // Update the cursor position
+    const newPos = startPos + textToInsert.length;
+    textarea.setSelectionRange(newPos, newPos);
+
+    // Trigger onChange manually if needed
+    setMarkdown(textarea.value);
+  };
+
+  const handleMarkdownChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMarkdown(e.target.value);
   };
 
   const handleMintClick = async () => {
@@ -29,6 +83,7 @@ const CreatePage = () => {
           placeholder="Enter Markdown..."
           value={markdown}
           onChange={handleMarkdownChange}
+          onPaste={handlePaste}
           disabled={isMinting} // Disable textarea when minting
         ></textarea>
       </div>

@@ -3,6 +3,7 @@ import ReactMarkdown, { Components } from 'react-markdown';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkStringify from 'remark-stringify';
+import remarkBreaks from 'remark-breaks';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkMatterPlugin from '@/utilities/matter'; // Adjust the import path as necessary
 import type { Parent } from 'unist';
@@ -25,7 +26,8 @@ type MarkdownProcessorProps = {
 export const processMarkdown = (markdown: string) => {
   const processor = unified()
     .use(remarkParse)
-    .use(remarkStringify)
+    .use(remarkBreaks)
+    .use(remarkStringify) // Convert to Markdown
     .use(remarkFrontmatter)
     .use(() => (tree: Parent) => {
       tree.children = tree.children.filter((child) => child.type !== 'yaml');
@@ -90,7 +92,7 @@ const MarkdownProcessor: React.FC<MarkdownProcessorProps> = ({
   return (
     <ReactMarkdown
       className="prose lg:prose-xl max-w-[calc(100vw-2rem)]"
-      remarkPlugins={[remarkGfm]}
+      remarkPlugins={[remarkGfm, remarkBreaks]}
       components={components}
     >
       {markdownBody}
