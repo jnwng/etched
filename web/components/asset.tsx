@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useWallet } from '@solana/wallet-adapter-react';
 import dynamic from 'next/dynamic';
@@ -107,6 +107,27 @@ function Asset({ asset }: AssetProps) {
   const title = frontMatter?.title ?? assetName ?? 'Untitled Piece';
   const description =
     frontMatter?.description ?? isVerified ? content : content.slice(0, 140);
+  // Clientside, call the json_uri and check if the description has changed
+  // if it has changed we will call revalidate
+  useEffect(() => {
+    if (asset.content.json_uri) {
+      const fetchContent = async () => {
+        const res = await fetch(asset.content.json_uri);
+        const {
+          description: tempDescription,
+        }: Pick<
+          Partial<DasApiAsset['content']['metadata']>,
+          'name' | 'description' | 'image'
+        > = await res.json();
+
+        // check if tempDescription is different than the current description
+        if (tempDescription !== description) {
+          await fetch('/api/revalidate?slug=' + asset.id);
+        }
+      };
+      fetchContent();
+    }
+  }, [asset.content, asset.content.json_uri, asset.id, description]);
   const image = (asset.content.links as unknown as LinksOverride)?.image;
   const imageWithTimestamp = image?.includes('?')
     ? `${image}&ts=${Date.now()}`
