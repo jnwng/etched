@@ -46,6 +46,14 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": [],
+      "options": {
+        "jestConfig": "web/jest.config.ts",
+        "passWithNoTests": true
+      }
     }
   },
   "tags": []

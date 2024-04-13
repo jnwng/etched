@@ -5,15 +5,45 @@ const CreateWizard = dynamic(() => import('../components/create-wizard'), {
   ssr: false,
 });
 
+import { parseClipboardHtml } from '@/utilities/parse-clipboard-html';
+
 const CreatePage = () => {
   const [markdown, setMarkdown] = useState('');
   const [isMinting, setIsMinting] = useState(false); // State to manage minting status
   const [processedMarkdown, setProcessedMarkdown] = useState('');
 
-  const handleMarkdownChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    setMarkdown(event.target.value);
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    e.preventDefault(); // Prevent the default paste behavior
+
+    // Get the text content from the clipboard
+    const pastedText = e.clipboardData.getData('text/plain');
+    const pastedHtml = e.clipboardData.getData('text/html');
+    console.info({ pastedHtml });
+
+    let textToInsert = pastedText;
+    if (pastedHtml) {
+      textToInsert = parseClipboardHtml(pastedHtml);
+    }
+
+    // Insert the processed text into the textarea
+    // Assuming you want to append the text at the current cursor position
+    const textarea = e.target as HTMLTextAreaElement;
+    const startPos = textarea.selectionStart;
+    const endPos = textarea.selectionEnd;
+    const textBefore = textarea.value.substring(0, startPos);
+    const textAfter = textarea.value.substring(endPos, textarea.value.length);
+    textarea.value = textBefore + textToInsert + textAfter;
+
+    // Update the cursor position
+    const newPos = startPos + textToInsert.length;
+    textarea.setSelectionRange(newPos, newPos);
+
+    // Trigger onChange manually if needed
+    setMarkdown(textarea.value);
+  };
+
+  const handleMarkdownChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMarkdown(e.target.value);
   };
 
   const handleMintClick = async () => {
@@ -29,6 +59,7 @@ const CreatePage = () => {
           placeholder="Enter Markdown..."
           value={markdown}
           onChange={handleMarkdownChange}
+          onPaste={handlePaste}
           disabled={isMinting} // Disable textarea when minting
         ></textarea>
       </div>

@@ -20,6 +20,9 @@ const nextConfig = {
     // See: https://github.com/gregberge/svgr
     svgr: false,
   },
+  experimental: {
+    forceSwcTransforms: true,
+  },
 };
 
 const plugins = [
