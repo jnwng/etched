@@ -11,7 +11,7 @@ export const parseClipboardHtml = (pastedHtml: string): string => {
     .use(rehypeParse, { fragment: true }) // Parse the pasted HTML
     .use(() => (tree: Parent) => {
       const firstNonMetaChild = tree.children.find(
-        (child) => (child as Element).tagName !== 'meta'
+        (child) => (child as Element).tagName !== 'meta',
       );
       if (firstNonMetaChild && 'children' in firstNonMetaChild) {
         tree.children = firstNonMetaChild.children as Node[];

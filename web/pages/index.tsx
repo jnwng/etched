@@ -4,7 +4,10 @@ import fs from 'fs';
 import path from 'path';
 
 export const getStaticProps = () => {
-  const homepageContent = fs.readFileSync(path.join(process.cwd(), 'components/homepage.md'), 'utf8');
+  const homepageContent = fs.readFileSync(
+    path.join(process.cwd(), 'components/homepage.md'),
+    'utf8',
+  );
 
   return {
     props: {
@@ -29,7 +32,6 @@ export default function Home({ homepageContent }: { homepageContent: string }) {
           </div>
         </div>
       </div>
-
     </div>
   );
 }

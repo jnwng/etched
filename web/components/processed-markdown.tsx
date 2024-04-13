@@ -19,7 +19,7 @@ type MarkdownProcessorProps = {
   processedMarkdown?: string;
   onProcessed?: (
     frontMatter: MarkdownFrontMatter,
-    markdownBody: string
+    markdownBody: string,
   ) => void; // Callback prop for passing data to parent
 };
 
@@ -78,7 +78,7 @@ const MarkdownProcessor: React.FC<MarkdownProcessorProps> = ({
         React.isValidElement(child)
           ? // @ts-expect-error Not sure how to fix this!
             React.cloneElement(child, { multiline: true })
-          : child
+          : child,
       );
       return (
         <pre className="overflow-x-auto max-w-[calc(100vw-2rem)]" {...props}>

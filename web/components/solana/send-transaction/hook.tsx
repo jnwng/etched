@@ -17,7 +17,7 @@ const useSolanaTransaction = (
     blockhash: string;
     lastValidBlockHeight: number;
   }>,
-  setState: React.Dispatch<React.SetStateAction<TransactionState>>
+  setState: React.Dispatch<React.SetStateAction<TransactionState>>,
 ) => {
   const wallet = useWallet();
   const [error, setError] = useState<Error | null>(null);
@@ -58,7 +58,7 @@ const useSolanaTransaction = (
         connection,
         {
           preflightCommitment: 'confirmed',
-        }
+        },
       );
       console.log('Transaction Signature:', transactionSignature);
       setSignature(transactionSignature); // Update signature state
@@ -70,7 +70,7 @@ const useSolanaTransaction = (
           lastValidBlockHeight,
           signature: transactionSignature,
         },
-        'confirmed'
+        'confirmed',
       );
 
       if (confirmed) {

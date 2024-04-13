@@ -18,7 +18,7 @@ umi.use(nftStorageUploader({ token: process.env.NFT_STORAGE_API_KEY! }));
 umi.use(mplToolbox());
 
 const TREE_AUTHORITY_KEYPAIR = umi.eddsa.createKeypairFromSecretKey(
-  new Uint8Array(JSON.parse(process.env.TREE_AUTHORITY_SECRET_KEY!))
+  new Uint8Array(JSON.parse(process.env.TREE_AUTHORITY_SECRET_KEY!)),
 );
 const TREE_PUBLIC_KEY = process.env.NEXT_PUBLIC_TREE_PUBLIC_KEY as string;
 
@@ -30,7 +30,7 @@ type RequestBody = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (req.method !== 'POST') {
     return res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -77,7 +77,7 @@ export default async function handler(
   // Mint NFT
   const treeAuthoritySigner = createSignerFromKeypair(
     umi,
-    TREE_AUTHORITY_KEYPAIR
+    TREE_AUTHORITY_KEYPAIR,
   );
   try {
     const authorNoopSigner = createNoopSigner(umiPublicKey(author));
@@ -96,7 +96,7 @@ export default async function handler(
     })
       .prepend({
         instruction: fromWeb3JsInstruction(
-          ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 1000 })
+          ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 1000 }),
         ),
         signers: [authorNoopSigner],
         bytesCreatedOnChain: 0,

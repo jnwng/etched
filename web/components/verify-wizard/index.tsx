@@ -47,7 +47,7 @@ interface VerifyWizardProps {
 
 const builderWithComputeBudget = async (
   umi: Umi,
-  builder: TransactionBuilder
+  builder: TransactionBuilder,
 ) => {
   const computeBudgetBuilder = builder
     .prepend(
@@ -56,12 +56,12 @@ const builderWithComputeBudget = async (
           instruction: fromWeb3JsInstruction(
             ComputeBudgetProgram.setComputeUnitPrice({
               microLamports: 1000,
-            })
+            }),
           ),
           signers: [],
           bytesCreatedOnChain: 0,
         },
-      ])
+      ]),
     )
     .useV0();
 
@@ -82,7 +82,7 @@ const builderWithComputeBudget = async (
 const addCreatorToMetadata = async (
   umi: Umi,
   creatorSigner: Signer,
-  asset: DasApiAsset
+  asset: DasApiAsset,
 ) => {
   const {
     compression: { compressed },
@@ -113,7 +113,7 @@ const addCreatorToMetadata = async (
         leafOwner: creatorSigner.publicKey,
         currentMetadata: assetWithProof.metadata,
         updateArgs,
-      })
+      }),
     );
   } else {
     const initialMetadata = await fetchMetadataFromSeeds(umi, {
@@ -125,7 +125,7 @@ const addCreatorToMetadata = async (
         mint: asset.id,
         authority: creatorSigner,
         data: { ...initialMetadata, creators: newCreators },
-      })
+      }),
     );
   }
 };
@@ -133,7 +133,7 @@ const addCreatorToMetadata = async (
 const verifyExistingCreator = async (
   umi: Umi,
   creatorSigner: Signer,
-  asset: DasApiAsset
+  asset: DasApiAsset,
 ) => {
   const {
     compression: { compressed },
@@ -146,7 +146,7 @@ const verifyExistingCreator = async (
       verifyCreator(umi, {
         ...assetWithProof,
         creator: creatorSigner,
-      })
+      }),
     );
   } else {
     return await builderWithComputeBudget(
@@ -154,7 +154,7 @@ const verifyExistingCreator = async (
       verifyCreatorV1(umi, {
         metadata: findMetadataPda(umi, { mint: asset.id }),
         authority: creatorSigner,
-      })
+      }),
     );
   }
 };
@@ -171,7 +171,7 @@ const VerifyWizard: React.FC<VerifyWizardProps> = ({ asset }) => {
 
   const wallet = useWallet();
   const [txState, setTxState] = useState<TransactionState>(
-    TransactionState.Idle
+    TransactionState.Idle,
   );
   const { error, sendTransaction } = useSolanaTransaction(async () => {
     const creatorSigner = createSignerFromWalletAdapter(wallet);
@@ -182,7 +182,7 @@ const VerifyWizard: React.FC<VerifyWizardProps> = ({ asset }) => {
       .use(signerIdentity(creatorSigner));
 
     const includedInCreatorsArray = creators.some(
-      (creator) => creator.address === creatorSigner.publicKey.toString()
+      (creator) => creator.address === creatorSigner.publicKey.toString(),
     );
 
     if (
@@ -194,7 +194,7 @@ const VerifyWizard: React.FC<VerifyWizardProps> = ({ asset }) => {
       return await verifyExistingCreator(umi, creatorSigner, asset);
     } else {
       throw new Error(
-        'The connected wallet is not the update authority nor in the creators array.'
+        'The connected wallet is not the update authority nor in the creators array.',
       );
       // TODO(jon): Handle the case where the creator is not the update authority and is not in the creators array
     }
@@ -203,7 +203,7 @@ const VerifyWizard: React.FC<VerifyWizardProps> = ({ asset }) => {
   // Two states: Either you're the update authority, or you're one of the unverified creators
   // Substate - if you're the update authority and you're not in the creators array, get added.
   const updateAuthority = authorities.find((authority) =>
-    authority.scopes.includes('full')
+    authority.scopes.includes('full'),
   )?.address;
 
   const handleVerifyClick = async () => {

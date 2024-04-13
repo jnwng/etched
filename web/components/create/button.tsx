@@ -17,7 +17,7 @@ import { useRouter } from 'next/router';
 
 const connection = new Connection(
   process.env.NEXT_PUBLIC_RPC_ENDPOINT!,
-  'confirmed'
+  'confirmed',
 );
 const umi = createUmi(connection);
 
@@ -31,7 +31,7 @@ const MintTransactionButton = ({
   markdown: string;
 }) => {
   const [txState, setTxState] = useState<TransactionState>(
-    TransactionState.Idle
+    TransactionState.Idle,
   );
   const { connected } = useWallet();
   const [formError, setFormError] = useState<string | null>(null);
@@ -79,7 +79,7 @@ const MintTransactionButton = ({
       });
 
       const deserialized = toWeb3JsTransaction(
-        umi.transactions.deserialize(Buffer.from(transaction, 'base64'))
+        umi.transactions.deserialize(Buffer.from(transaction, 'base64')),
       );
       console.info({ deserialized });
       return { transaction: deserialized, blockhash, lastValidBlockHeight };
@@ -92,7 +92,7 @@ const MintTransactionButton = ({
 
   const { error, sendTransaction, signature } = useSolanaTransaction(
     fetchTransaction,
-    setTxState
+    setTxState,
   );
 
   useEffect(() => {
@@ -100,7 +100,7 @@ const MintTransactionButton = ({
       console.info({ signature });
       const leaf: LeafSchema = await parseLeafFromMintV1Transaction(
         umi,
-        base58.serialize(signature!)
+        base58.serialize(signature!),
       );
       const [assetId] = findLeafAssetIdPda(umi, {
         merkleTree: publicKey(process.env.NEXT_PUBLIC_TREE_PUBLIC_KEY!),
