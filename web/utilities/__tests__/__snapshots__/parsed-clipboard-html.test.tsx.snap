@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Markdown Processor Google Docs handle headings, formatting, ordered and unordered lists 1`] = `
+"# Heading 1
+**Some bold text**, *some italic text*
+**Some bold text**, *some italic text*
+**Different font family**
+
+
+## Heading 2
+1. Ordered list 1
+2. Ordered list 2
+3. Ordered list 3
+
+
+### Heading 3
+* Bullet point 1
+* Bullet point 2
+* Bullet point 3
+"
+`;

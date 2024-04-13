@@ -4,12 +4,8 @@ import dynamic from 'next/dynamic';
 const CreateWizard = dynamic(() => import('../components/create-wizard'), {
   ssr: false,
 });
-import { unified } from 'unified';
-import rehypeParse from 'rehype-parse';
-import rehypeRemark from 'rehype-remark';
-import remarkStringify from 'remark-stringify';
-import { Parent, Node } from 'unist';
-import type { Element } from 'hast';
+
+import { parseClipboardHtml } from '@/utilities/parse-clipboard-html';
 
 const CreatePage = () => {
   const [markdown, setMarkdown] = useState('');
@@ -22,31 +18,11 @@ const CreatePage = () => {
     // Get the text content from the clipboard
     const pastedText = e.clipboardData.getData('text/plain');
     const pastedHtml = e.clipboardData.getData('text/html');
+    console.info({ pastedHtml });
 
     let textToInsert = pastedText;
     if (pastedHtml) {
-      const processor = unified()
-        .use(rehypeParse, { fragment: true }) // Parse the pasted HTML
-        .use(() => (tree: Parent) => {
-          const firstNonMetaChild = tree.children.find(
-            (child) => (child as Element).tagName !== 'meta'
-          );
-          if (firstNonMetaChild && 'children' in firstNonMetaChild) {
-            tree.children = firstNonMetaChild.children as Node[];
-          }
-        })
-        .use(rehypeRemark, { document: false, newlines: true }) // Convert HTML to Markdown
-        .use(remarkStringify, {
-          handlers: {
-            break: () => {
-              return '\n';
-            },
-          },
-        }); // Stringify to Markdown
-      textToInsert = processor
-        .processSync(pastedHtml)
-        .toString()
-        .replace(/\n\n/g, '\n');
+      textToInsert = parseClipboardHtml(pastedHtml);
     }
 
     // Insert the processed text into the textarea
